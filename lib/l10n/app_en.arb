@@ -1,0 +1,71 @@
+{
+  "@@locale": "en",
+  "appTitle": "Password Vault",
+  "navPasswords": "Passwords",
+  "navSettings": "Settings",
+  "navTagline": "Manage sites, accounts, and passwords in one place.",
+  "securityNoteTitle": "Security note",
+  "securityNoteBody": "Rotate high-risk passwords regularly and enable two-factor authentication.",
+  "passwordPageTitle": "Website Passwords",
+  "passwordPageSubtitle": "Data now comes from local SQLite storage. You can create sites, add accounts, search, reveal passwords, and delete records.",
+  "metricSites": "Sites",
+  "metricAccounts": "Accounts",
+  "addSite": "Add Site",
+  "searchHint": "Search site, account, email, or password",
+  "siteSaved": "Site saved",
+  "accountSaved": "Account saved",
+  "siteDeleted": "Site deleted",
+  "accountDeleted": "Account deleted",
+  "passwordCopied": "Password copied",
+  "deleteSite": "Delete Site",
+  "siteAccountsCount": "{count} accounts",
+  "@siteAccountsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAccount": "Add Account",
+  "noAccountSaved": "No account saved yet",
+  "hidePassword": "Hide password",
+  "showPassword": "Show password",
+  "deleteAccount": "Delete account",
+  "fieldAccount": "Account",
+  "fieldPassword": "Password",
+  "copyPassword": "Copy password",
+  "noMatchingData": "No matching data",
+  "emptyStateBody": "Create a site first, then add accounts and passwords.",
+  "dialogAddSiteTitle": "Add Site",
+  "dialogSiteName": "Site name",
+  "dialogEnterSiteName": "Enter a site name",
+  "dialogDomain": "Domain",
+  "dialogEnterDomain": "Enter a domain",
+  "dialogThemeColor": "Theme color",
+  "cancel": "Cancel",
+  "save": "Save",
+  "dialogAddAccountTitle": "Add Account - {siteName}",
+  "@dialogAddAccountTitle": {
+    "placeholders": {
+      "siteName": {}
+    }
+  },
+  "dialogLabel": "Label",
+  "dialogEnterLabel": "Enter a label",
+  "dialogAccountOrEmail": "Account / email",
+  "dialogEnterAccountOrEmail": "Enter an account or email",
+  "dialogPassword": "Password",
+  "dialogEnterPassword": "Enter a password",
+  "settingsTitle": "Settings",
+  "settingsSubtitle": "This page keeps the project ready for real settings without blocking the password workflow.",
+  "settingsSecurityTitle": "Security",
+  "settingsSecurityDescription": "Keep placeholders for app lock, automatic lock, and login alerts.",
+  "settingsDisplayTitle": "Display and sync",
+  "settingsDisplayDescription": "Reserve room for desktop, mobile, and sync controls.",
+  "settingsEnableAppLock": "Enable app lock",
+  "settingsAutoLock": "Auto lock after 15 minutes",
+  "settingsHighRiskReminder": "High-risk login reminders",
+  "settingsDesktopLayout": "Desktop wide layout",
+  "settingsCompactMobileCards": "Compact mobile cards",
+  "settingsAutoSync": "Auto sync recent changes"
+}

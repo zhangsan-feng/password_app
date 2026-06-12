@@ -1,0 +1,71 @@
+{
+  "@@locale": "zh",
+  "appTitle": "\u5bc6\u7801\u7ba1\u7406",
+  "navPasswords": "\u5bc6\u7801",
+  "navSettings": "\u8bbe\u7f6e",
+  "navTagline": "\u7edf\u4e00\u7ba1\u7406\u7f51\u7ad9\u3001\u8d26\u53f7\u548c\u5bc6\u7801\u3002",
+  "securityNoteTitle": "\u5b89\u5168\u63d0\u9192",
+  "securityNoteBody": "\u5efa\u8bae\u5b9a\u671f\u66f4\u6362\u9ad8\u98ce\u9669\u5bc6\u7801\uff0c\u5e76\u542f\u7528\u53cc\u91cd\u9a8c\u8bc1\u3002",
+  "passwordPageTitle": "\u7f51\u7ad9\u5bc6\u7801",
+  "passwordPageSubtitle": "\u6570\u636e\u73b0\u5728\u6765\u81ea\u672c\u5730 SQLite \u5b58\u50a8\uff0c\u53ef\u4ee5\u65b0\u589e\u7f51\u7ad9\u3001\u5f55\u5165\u8d26\u53f7\u5bc6\u7801\u3001\u641c\u7d22\u3001\u663e\u793a\u6216\u9690\u85cf\u5bc6\u7801\uff0c\u4ee5\u53ca\u5220\u9664\u8bb0\u5f55\u3002",
+  "metricSites": "\u7f51\u7ad9",
+  "metricAccounts": "\u8d26\u53f7",
+  "addSite": "\u65b0\u589e\u7f51\u7ad9",
+  "searchHint": "\u641c\u7d22\u7f51\u7ad9\u3001\u8d26\u53f7\u3001\u90ae\u7bb1\u6216\u5bc6\u7801",
+  "siteSaved": "\u7f51\u7ad9\u5df2\u4fdd\u5b58",
+  "accountSaved": "\u8d26\u53f7\u5df2\u4fdd\u5b58",
+  "siteDeleted": "\u7f51\u7ad9\u5df2\u5220\u9664",
+  "accountDeleted": "\u8d26\u53f7\u5df2\u5220\u9664",
+  "passwordCopied": "\u5bc6\u7801\u5df2\u590d\u5236",
+  "deleteSite": "\u5220\u9664\u7f51\u7ad9",
+  "siteAccountsCount": "{count} \u4e2a\u8d26\u53f7",
+  "@siteAccountsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAccount": "\u65b0\u589e\u8d26\u53f7",
+  "noAccountSaved": "\u8fd8\u6ca1\u6709\u4fdd\u5b58\u8d26\u53f7",
+  "hidePassword": "\u9690\u85cf\u5bc6\u7801",
+  "showPassword": "\u663e\u793a\u5bc6\u7801",
+  "deleteAccount": "\u5220\u9664\u8d26\u53f7",
+  "fieldAccount": "\u8d26\u53f7",
+  "fieldPassword": "\u5bc6\u7801",
+  "copyPassword": "\u590d\u5236\u5bc6\u7801",
+  "noMatchingData": "\u6ca1\u6709\u5339\u914d\u7684\u6570\u636e",
+  "emptyStateBody": "\u53ef\u4ee5\u5148\u65b0\u589e\u4e00\u4e2a\u7f51\u7ad9\uff0c\u518d\u7ee7\u7eed\u6dfb\u52a0\u8d26\u53f7\u548c\u5bc6\u7801\u3002",
+  "dialogAddSiteTitle": "\u65b0\u589e\u7f51\u7ad9",
+  "dialogSiteName": "\u7f51\u7ad9\u540d\u79f0",
+  "dialogEnterSiteName": "\u8bf7\u8f93\u5165\u7f51\u7ad9\u540d\u79f0",
+  "dialogDomain": "\u57df\u540d",
+  "dialogEnterDomain": "\u8bf7\u8f93\u5165\u57df\u540d",
+  "dialogThemeColor": "\u4e3b\u9898\u989c\u8272",
+  "cancel": "\u53d6\u6d88",
+  "save": "\u4fdd\u5b58",
+  "dialogAddAccountTitle": "\u65b0\u589e\u8d26\u53f7 - {siteName}",
+  "@dialogAddAccountTitle": {
+    "placeholders": {
+      "siteName": {}
+    }
+  },
+  "dialogLabel": "\u6807\u7b7e",
+  "dialogEnterLabel": "\u8bf7\u8f93\u5165\u6807\u7b7e",
+  "dialogAccountOrEmail": "\u8d26\u53f7 / \u90ae\u7bb1",
+  "dialogEnterAccountOrEmail": "\u8bf7\u8f93\u5165\u8d26\u53f7\u6216\u90ae\u7bb1",
+  "dialogPassword": "\u5bc6\u7801",
+  "dialogEnterPassword": "\u8bf7\u8f93\u5165\u5bc6\u7801",
+  "settingsTitle": "\u8bbe\u7f6e",
+  "settingsSubtitle": "\u8fd9\u4e2a\u9875\u9762\u4e3a\u540e\u7eed\u771f\u5b9e\u8bbe\u7f6e\u529f\u80fd\u9884\u7559\u4e86\u7ed3\u6784\uff0c\u4e0d\u4f1a\u5f71\u54cd\u5bc6\u7801\u4e3b\u6d41\u7a0b\u3002",
+  "settingsSecurityTitle": "\u5b89\u5168",
+  "settingsSecurityDescription": "\u4e3a\u5e94\u7528\u9501\u3001\u81ea\u52a8\u9501\u5b9a\u548c\u767b\u5f55\u63d0\u9192\u7b49\u529f\u80fd\u9884\u7559\u4f4d\u7f6e\u3002",
+  "settingsDisplayTitle": "\u663e\u793a\u4e0e\u540c\u6b65",
+  "settingsDisplayDescription": "\u4e3a\u684c\u9762\u7aef\u3001\u79fb\u52a8\u7aef\u548c\u540c\u6b65\u76f8\u5173\u8bbe\u7f6e\u9884\u7559\u4f4d\u7f6e\u3002",
+  "settingsEnableAppLock": "\u5f00\u542f\u5e94\u7528\u9501",
+  "settingsAutoLock": "15 \u5206\u949f\u65e0\u64cd\u4f5c\u81ea\u52a8\u9501\u5b9a",
+  "settingsHighRiskReminder": "\u9ad8\u98ce\u9669\u767b\u5f55\u63d0\u9192",
+  "settingsDesktopLayout": "\u684c\u9762\u7aef\u5bbd\u5c4f\u5e03\u5c40",
+  "settingsCompactMobileCards": "\u79fb\u52a8\u7aef\u7d27\u51d1\u5361\u7247",
+  "settingsAutoSync": "\u81ea\u52a8\u540c\u6b65\u6700\u8fd1\u4fee\u6539"
+}
