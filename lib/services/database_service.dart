@@ -85,6 +85,15 @@ class DatabaseService {
     return _database!;
   }
 
+  Future<void> close() async {
+    final db = _database;
+    if (db == null) {
+      return;
+    }
+    _database = null;
+    await db.close();
+  }
+
   Future<String> _resolveDatabasePath() async {
     final directory = await getApplicationDocumentsDirectory();
     return path.join(directory.path, 'password_vault.db');

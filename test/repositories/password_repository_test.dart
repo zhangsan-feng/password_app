@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as path;
 import 'package:password_app/models/app_models.dart';
 import 'package:password_app/repositories/password_repository.dart';
 import 'package:password_app/services/database_service.dart';
 import 'package:password_app/services/password_crypto_service.dart';
-import 'package:sqflite/sqflite.dart';
 
 class _FakePasswordCryptoService extends PasswordCryptoService {
   @override
@@ -38,13 +40,34 @@ void main() {
   group('PasswordRepository sync merge', () {
     late PasswordRepository repository;
     late DatabaseService databaseService;
+    late String databasePath;
 
     setUp(() {
-      databaseService = DatabaseService(databasePath: inMemoryDatabasePath);
+      databasePath = path.join(
+        Directory.systemTemp.path,
+        'password_repository_test_${DateTime.now().microsecondsSinceEpoch}.db',
+      );
+      databaseService = DatabaseService(databasePath: databasePath);
       repository = PasswordRepository(
         databaseService: databaseService,
         cryptoService: _FakePasswordCryptoService(),
       );
+    });
+
+    tearDown(() async {
+      await databaseService.close();
+
+      final databaseFile = File(databasePath);
+      if (await databaseFile.exists()) {
+        await databaseFile.delete();
+      }
+
+      for (final suffix in ['-wal', '-shm']) {
+        final sidecarFile = File('$databasePath$suffix');
+        if (await sidecarFile.exists()) {
+          await sidecarFile.delete();
+        }
+      }
     });
 
     test('merges missing records and keeps newer incoming records', () async {
@@ -190,7 +213,12 @@ void main() {
           .cast<Map<String, Object>>();
       final accountHistory = history
           .where((item) => item['accountId'] == accountId)
-          .toList();
+          .toList()
+        ..sort(
+          (left, right) => (left['createdAt'] as String).compareTo(
+            right['createdAt'] as String,
+          ),
+        );
 
       expect(accountHistory, hasLength(2));
       expect(accountHistory.first['password'], 'first-password');
