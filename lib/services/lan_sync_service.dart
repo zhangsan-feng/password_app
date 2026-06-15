@@ -28,6 +28,14 @@ class LanSyncPeerInfo {
   final String exportUrl;
 }
 
+class LanSyncCompletionEvent {
+  const LanSyncCompletionEvent({
+    required this.peerName,
+  });
+
+  final String peerName;
+}
+
 class LanSyncDiscoveryCandidate {
   const LanSyncDiscoveryCandidate({
     required this.name,
@@ -70,6 +78,7 @@ class LanSyncService {
   static const _discoveryPortKey = 'port';
   static const _discoveryHostsKey = 'hosts';
   static const _discoveryExportPathKey = 'exportPath';
+  static const _syncSourceNameHeader = 'x-lan-sync-source-name';
   static const _pfxPassword = 'password-app-sync';
   static const _pfxBase64 =
       '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';
@@ -85,6 +94,9 @@ class LanSyncService {
   final PasswordRepository _repository;
   final String _instanceId = _buildInstanceId();
   Future<List<LanSyncPeerInfo>>? _peerDiscoveryFuture;
+  Future<String>? _deviceNameFuture;
+  final StreamController<LanSyncCompletionEvent> _syncEventsController =
+      StreamController<LanSyncCompletionEvent>.broadcast();
   List<LanSyncPeerInfo> _cachedPeers = const [];
 
   void _log(String message) {
@@ -162,6 +174,7 @@ class LanSyncService {
 
   bool get isRunning => _sharedServer != null;
   List<LanSyncPeerInfo> get cachedPeers => List.unmodifiable(_cachedPeers);
+  Stream<LanSyncCompletionEvent> get syncEvents => _syncEventsController.stream;
 
   Future<LanSyncShareInfo> startServer({int port = _defaultPort}) async {
     if (_sharedServer != null) {
@@ -229,6 +242,7 @@ class LanSyncService {
         uri.replace(path: _serviceMergePath, query: ''),
       );
       request.headers.contentType = ContentType.json;
+      request.headers.set(_syncSourceNameHeader, await _getDeviceName());
       request.write(jsonEncode(localPayload));
       final response = await request.close();
       if (response.statusCode != HttpStatus.ok) {
@@ -243,6 +257,7 @@ class LanSyncService {
       }
 
       await _repository.mergePlainSyncData(decoded);
+      _emitSyncEvent(peerName: sourceName);
       _log('Sync succeeded with $uri.');
       return sourceName.isEmpty ? normalized : sourceName;
     } finally {
@@ -259,6 +274,7 @@ class LanSyncService {
       return _peerDiscoveryFuture!;
     }
 
+    _cachedPeers = const [];
     final future = _discoverPeersInternal(port);
     _peerDiscoveryFuture = future;
     try {
@@ -339,7 +355,7 @@ class LanSyncService {
     server.listen((request) async {
       if (request.method == 'GET' && request.uri.path == _serviceInfoPath) {
         final payload = {
-          'name': Platform.localHostname,
+          'name': await _getDeviceName(),
           'exportUrl': _serviceExportPath,
         };
         request.response
@@ -362,6 +378,9 @@ class LanSyncService {
 
       if (request.method == 'POST' && request.uri.path == _serviceMergePath) {
         try {
+          final sourceName = _normalizeSyncSourceName(
+            request.headers.value(_syncSourceNameHeader),
+          );
           final body = await utf8.decoder.bind(request).join();
           final decoded = jsonDecode(body);
           if (decoded is! Map<String, dynamic>) {
@@ -373,6 +392,7 @@ class LanSyncService {
           }
 
           await _repository.mergePlainSyncData(decoded);
+          _emitSyncEvent(peerName: sourceName);
           final payload = await _repository.exportPlainSyncData();
           request.response
             ..statusCode = HttpStatus.ok
@@ -429,7 +449,7 @@ class LanSyncService {
     socket.writeEventsEnabled = false;
     socket.multicastHops = 1;
     socket.multicastLoopback = false;
-    socket.joinMulticast(InternetAddress(_multicastAddress));
+    await _joinDiscoveryMulticastGroups(socket);
 
     _sharedDiscoverySocket = socket;
     _log('UDP discovery listener started on 0.0.0.0:$_discoveryPort.');
@@ -447,6 +467,44 @@ class LanSyncService {
 
     _startAnnouncementTimer(syncPort);
     await _announcePresence(socket, syncPort, requestId: '', multicast: true);
+  }
+
+  Future<void> _joinDiscoveryMulticastGroups(RawDatagramSocket socket) async {
+    final multicastGroup = InternetAddress(_multicastAddress);
+    final interfaces = await _listPrivateIpv4Interfaces();
+
+    if (interfaces.isEmpty) {
+      socket.joinMulticast(multicastGroup);
+      _log('Joined multicast group $_multicastAddress using default interface.');
+      return;
+    }
+
+    final joinedInterfaces = <String>{};
+    for (final interface in interfaces) {
+      try {
+        socket.joinMulticast(multicastGroup, interface);
+        joinedInterfaces.add(interface.name);
+        _log(
+          'Joined multicast group $_multicastAddress on interface '
+          '${interface.name}.',
+        );
+      } catch (error) {
+        _log(
+          'Failed to join multicast group $_multicastAddress on interface '
+          '${interface.name}: $error',
+        );
+      }
+    }
+
+    if (joinedInterfaces.isNotEmpty) {
+      return;
+    }
+
+    socket.joinMulticast(multicastGroup);
+    _log(
+      'Joined multicast group $_multicastAddress using default interface '
+      'after per-interface join failed.',
+    );
   }
 
   Future<void> _handleDiscoveryDatagram(
@@ -513,6 +571,7 @@ class LanSyncService {
       _discoveryPort,
       fallbackSocket: socket,
       logLabel: 'discover',
+      preserveSourcePort: true,
     );
 
     await Future<void>.delayed(_discoveryTimeout);
@@ -556,7 +615,8 @@ class LanSyncService {
         return null;
       }
 
-      final name = '${decoded['name'] ?? ''}'.trim();
+      final rawName = '${decoded['name'] ?? ''}'.trim();
+      final name = _normalizePeerName(rawName, exportUri.host);
       return name.isEmpty ? null : name;
     } catch (_) {
       return null;
@@ -594,7 +654,7 @@ class LanSyncService {
     final response = encodeDiscoveryResponseForTesting(
       requestId: requestId,
       instanceId: _instanceId,
-      name: Platform.localHostname,
+      name: await _getDeviceName(),
       port: syncPort,
       exportPath: _serviceExportPath,
       hosts: hosts,
@@ -629,17 +689,28 @@ class LanSyncService {
     int port, {
     required RawDatagramSocket fallbackSocket,
     required String logLabel,
+    bool preserveSourcePort = false,
   }) async {
-    final sourceAddresses = await _listSelfAddresses();
-    if (sourceAddresses.isEmpty) {
+    if (preserveSourcePort) {
       fallbackSocket.send(payload, destination, port);
       _log(
-        'Sent $logLabel via fallback socket to ${destination.address}:$port.',
+        'Sent $logLabel via bound listener socket to '
+        '${destination.address}:$port.',
       );
+    }
+
+    final sourceAddresses = await _listSelfAddresses();
+    if (sourceAddresses.isEmpty) {
+      if (!preserveSourcePort) {
+        fallbackSocket.send(payload, destination, port);
+        _log(
+          'Sent $logLabel via fallback socket to ${destination.address}:$port.',
+        );
+      }
       return;
     }
 
-    var sent = false;
+    var sent = preserveSourcePort;
     final sortedAddresses = sourceAddresses.toList()..sort(_comparePeerHosts);
     for (final sourceAddress in sortedAddresses) {
       try {
@@ -668,7 +739,7 @@ class LanSyncService {
       }
     }
 
-    if (!sent) {
+    if (!sent && !preserveSourcePort) {
       fallbackSocket.send(payload, destination, port);
       _log(
         'Sent $logLabel via fallback socket to ${destination.address}:$port.',
@@ -698,6 +769,7 @@ class LanSyncService {
         candidate.host,
         candidate.port,
         exportPath: candidate.exportPath,
+        advertisedName: candidate.name,
       );
       if (peer != null) {
         _mergeCachedPeer(peer);
@@ -721,6 +793,7 @@ class LanSyncService {
     int port, {
     String? displayAddress,
     String? exportPath,
+    String? advertisedName,
   }) async {
     final client = HttpClient()
       ..connectionTimeout = const Duration(milliseconds: 1200)
@@ -753,7 +826,11 @@ class LanSyncService {
       }
 
       final rawName = '${decoded['name'] ?? host}'.trim();
-      final name = _normalizePeerName(rawName, host);
+      final name = _normalizePeerName(
+        rawName,
+        host,
+        fallbackName: advertisedName,
+      );
       final resolvedExportPath = _normalizeExportPath(
         exportPath ?? '${decoded['exportUrl'] ?? _serviceExportPath}',
       );
@@ -783,17 +860,27 @@ class LanSyncService {
   }
 
   Future<Set<String>> _listSelfAddresses() async {
+    return {
+      for (final interface in await _listPrivateIpv4Interfaces())
+        ...interface.addresses
+            .map((address) => address.address)
+            .where(_isPrivateIpv4),
+    };
+  }
+
+  Future<List<NetworkInterface>> _listPrivateIpv4Interfaces() async {
     final interfaces = await NetworkInterface.list(
       includeLoopback: false,
       type: InternetAddressType.IPv4,
     );
 
-    return {
-      for (final interface in interfaces)
-        ...interface.addresses
-            .map((address) => address.address)
-            .where(_isPrivateIpv4),
-    };
+    return interfaces
+        .where(
+          (interface) => interface.addresses.any(
+            (address) => _isPrivateIpv4(address.address),
+          ),
+        )
+        .toList();
   }
 
   static List<LanSyncDiscoveryCandidate> _extractPeerCandidates(
@@ -1011,14 +1098,30 @@ class LanSyncService {
     return normalized.startsWith('/') ? normalized : '/$normalized';
   }
 
-  String _normalizePeerName(String rawName, String host) {
+  String _normalizePeerName(
+    String rawName,
+    String host, {
+    String? fallbackName,
+  }) {
     final normalized = rawName.trim();
+    final normalizedFallback = fallbackName?.trim() ?? '';
+    if (_isGenericPeerName(normalized) &&
+        !_isGenericPeerName(normalizedFallback)) {
+      return normalizedFallback;
+    }
     if (host == '10.0.2.2' &&
         (normalized.isEmpty || normalized.toLowerCase() == 'localhost')) {
       return 'Windows Host';
     }
 
     return normalized;
+  }
+
+  bool _isGenericPeerName(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized.isEmpty ||
+        normalized == 'localhost' ||
+        normalized == '127.0.0.1';
   }
 
   static String _buildInstanceId() {
@@ -1030,6 +1133,60 @@ class LanSyncService {
   static String _buildRequestId() {
     final seed = DateTime.now().microsecondsSinceEpoch.toString();
     return sha1.convert(utf8.encode(seed)).toString();
+  }
+
+  Future<String> _getDeviceName() {
+    return _deviceNameFuture ??= _resolveDeviceName();
+  }
+
+  void _emitSyncEvent({required String peerName}) {
+    if (_syncEventsController.isClosed) {
+      return;
+    }
+    _syncEventsController.add(LanSyncCompletionEvent(peerName: peerName));
+  }
+
+  String _normalizeSyncSourceName(String? value) {
+    final normalized = value?.trim() ?? '';
+    if (normalized.isEmpty) {
+      return '未知设备';
+    }
+    return normalized;
+  }
+
+  Future<String> _resolveDeviceName() async {
+    if (Platform.isAndroid) {
+      try {
+        final platformName = await _platformChannel.invokeMethod<String>(
+          'getDeviceName',
+        );
+        final normalizedPlatformName = platformName?.trim() ?? '';
+        _log('Android platform device name candidate: "$normalizedPlatformName".');
+        if (!_isGenericPeerName(normalizedPlatformName)) {
+          _log('Using Android platform device name "$normalizedPlatformName".');
+          return normalizedPlatformName;
+        }
+      } catch (error) {
+        _log('Failed to resolve Android device name: $error');
+      }
+    }
+
+    final hostname = Platform.localHostname.trim();
+    _log('Platform.localHostname candidate: "$hostname".');
+    if (!_isGenericPeerName(hostname)) {
+      _log('Using hostname device name "$hostname".');
+      return hostname;
+    }
+
+    if (Platform.isAndroid) {
+      _log('Falling back to generic Android device name.');
+      return 'Android Device';
+    }
+    if (Platform.isWindows) {
+      return 'Windows PC';
+    }
+
+    return 'LAN Sync Device';
   }
 
   Future<void> _acquirePlatformMulticastLock() async {

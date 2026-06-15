@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../l10n/app_localizations.dart';
 import '../repositories/password_repository.dart';
+import '../services/app_storage_paths.dart';
+import '../services/password_crypto_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.repository});
@@ -16,6 +17,27 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _isUpdatingKey = false;
   int _processedCount = 0;
   int _totalCount = 0;
+  String? _databasePath;
+  String? _keyringPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStoragePaths();
+  }
+
+  Future<void> _loadStoragePaths() async {
+    final databasePath = await AppStoragePaths.resolveDatabasePath();
+    final keyringPath = await PasswordCryptoService.resolveKeyringPath();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _databasePath = databasePath;
+      _keyringPath = keyringPath;
+    });
+  }
 
   Future<void> _confirmAndRotateSecretKey() async {
     final shouldContinue = await showDialog<bool>(
@@ -90,8 +112,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFFFCF9),
@@ -100,11 +120,6 @@ class _SettingsPageState extends State<SettingsPage> {
       child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          _SettingsHeader(
-            title: l10n.settingsTitle,
-            subtitle: l10n.settingsSubtitle,
-          ),
-          const SizedBox(height: 24),
           _SettingsCard(
             title: '更新秘钥',
             description: '点击按钮后会提示确认。确认后系统会在后台更新秘钥，并重新加密所有已保存账号的密码内容。',
@@ -136,27 +151,21 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          _SettingsCard(
+            title: '存储路径',
+            description: '当前应用实际使用的数据库和密钥文件路径。桌面端会优先放在程序目录下的 data 文件夹中。',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _PathRow(label: '数据库路径', value: _databasePath ?? '读取中...'),
+                const SizedBox(height: 14),
+                _PathRow(label: '密钥路径', value: _keyringPath ?? '读取中...'),
+              ],
+            ),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class _SettingsHeader extends StatelessWidget {
-  const _SettingsHeader({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 10),
-        Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
-      ],
     );
   }
 }
@@ -191,6 +200,36 @@ class _SettingsCard extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+}
+
+class _PathRow extends StatelessWidget {
+  const _PathRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 6),
+        SelectableText(
+          value,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: const Color(0xFF5F564E),
+            height: 1.5,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
+
+import 'app_storage_paths.dart';
 
 class PasswordCryptoPayload {
   const PasswordCryptoPayload({required this.cipherText, required this.hash});
@@ -65,6 +65,10 @@ class PasswordCryptoService {
   final AesGcm _algorithm;
   SecretKey? _secretKey;
   String? _unlockPassword;
+
+  static Future<String> resolveKeyringPath() {
+    return AppStoragePaths.resolveKeyringPath(createIfMissing: true);
+  }
 
   Future<SecretKey> get _resolvedSecretKey async {
     if (_secretKey != null) {
@@ -284,11 +288,10 @@ class PasswordCryptoService {
   }
 
   Future<_KeyRecord> _loadOrCreateKeyRecord() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final keyRecordFile = File(
-      path.join(directory.path, '.vault_keyring.json'),
+    final keyRecordFile = File(await resolveKeyringPath());
+    final legacyKeyFile = File(
+      await AppStoragePaths.resolveLegacyKeyPath(createIfMissing: true),
     );
-    final legacyKeyFile = File(path.join(directory.path, '.vault_aes_key'));
 
     if (await keyRecordFile.exists()) {
       final stored = await keyRecordFile.readAsString();
@@ -311,10 +314,7 @@ class PasswordCryptoService {
   }
 
   Future<void> _writeKeyRecord(_KeyRecord keyRecord) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final keyRecordFile = File(
-      path.join(directory.path, '.vault_keyring.json'),
-    );
+    final keyRecordFile = File(await resolveKeyringPath());
     await keyRecordFile.writeAsString(
       jsonEncode(keyRecord.toJson()),
       flush: true,

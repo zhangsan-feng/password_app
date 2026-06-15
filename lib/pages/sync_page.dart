@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../repositories/password_repository.dart';
@@ -22,6 +24,7 @@ class _SyncPageState extends State<SyncPage> {
 
   List<LanSyncPeerInfo> _discoveredPeers = const [];
   LanSyncPeerInfo? _selectedPeer;
+  StreamSubscription<LanSyncCompletionEvent>? _syncEventSubscription;
   bool _isSyncing = false;
   bool _isDiscovering = false;
   bool _isPreparing = true;
@@ -30,13 +33,21 @@ class _SyncPageState extends State<SyncPage> {
   @override
   void initState() {
     super.initState();
+    _syncEventSubscription = widget.syncService.syncEvents.listen(
+      _handleSyncEvent,
+    );
     _initializeSync();
   }
 
   @override
   void dispose() {
+    _syncEventSubscription?.cancel();
     _serverController.dispose();
     super.dispose();
+  }
+
+  void _handleSyncEvent(LanSyncCompletionEvent event) {
+    _showMessage('收到对方 ${event.peerName} 设备的数据，已经同步完成');
   }
 
   Future<void> _initializeSync() async {
@@ -74,6 +85,8 @@ class _SyncPageState extends State<SyncPage> {
 
     setState(() {
       _isDiscovering = true;
+      _discoveredPeers = const [];
+      _selectedPeer = null;
     });
 
     try {
@@ -83,13 +96,6 @@ class _SyncPageState extends State<SyncPage> {
       }
       setState(() {
         _discoveredPeers = peers;
-        if (_selectedPeer != null) {
-          final selectedAddress = _selectedPeer!.address;
-          _selectedPeer = peers
-              .where((peer) => peer.address == selectedAddress)
-              .cast<LanSyncPeerInfo?>()
-              .firstOrNull;
-        }
       });
     } catch (error) {
       _showMessage('扫描设备失败: $error');
@@ -114,8 +120,7 @@ class _SyncPageState extends State<SyncPage> {
     });
 
     try {
-      final sourceName = await widget.syncService.syncWithPeer(peer.exportUrl);
-      _showMessage('已与 $sourceName 完成双向同步');
+      await widget.syncService.syncWithPeer(peer.exportUrl);
     } catch (error) {
       _showMessage('同步失败: $error');
     } finally {
@@ -139,8 +144,7 @@ class _SyncPageState extends State<SyncPage> {
     });
 
     try {
-      final sourceName = await widget.syncService.syncWithPeer(address);
-      _showMessage('已与 $sourceName 完成双向同步');
+      await widget.syncService.syncWithPeer(address);
     } catch (error) {
       _showMessage('同步失败: $error');
     } finally {
@@ -177,14 +181,7 @@ class _SyncPageState extends State<SyncPage> {
       child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text('同步', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 10),
-          Text(
-            '本机会常驻同步服务。开始同步时，双方都会发送自己的数据，并各自在本地按照 uuid 和最近修改时间执行合并：不存在就插入，已存在就用较新的记录覆盖。',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
           if (_serviceError != null) ...[
-            const SizedBox(height: 18),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -211,8 +208,8 @@ class _SyncPageState extends State<SyncPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
           ],
-          const SizedBox(height: 24),
           _SectionCard(
             title: '局域网同步',
             child: Column(

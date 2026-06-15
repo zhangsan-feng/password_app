@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/app_models.dart';
 import '../repositories/password_repository.dart';
+import '../services/app_layout.dart';
 import '../services/lan_sync_service.dart';
 import '../widgets/side_navigation.dart';
 import 'password_page.dart';
@@ -28,7 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final isDesktop = width >= 900;
+    final isDesktop = AppLayout.isDesktopWidth(width);
 
     return Scaffold(
       drawer: isDesktop
@@ -94,6 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case AppSection.passwords:
         return PasswordPage(
           repository: widget.repository,
+          syncService: widget.syncService,
           isDesktop: isDesktop,
         );
       case AppSection.sync:

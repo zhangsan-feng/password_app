@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/app_models.dart';
 import '../repositories/password_repository.dart';
+import '../services/lan_sync_service.dart';
 import '../widgets/account_form_dialog.dart';
 import '../widgets/site_form_dialog.dart';
 
@@ -11,10 +14,12 @@ class PasswordPage extends StatefulWidget {
   const PasswordPage({
     super.key,
     required this.repository,
+    required this.syncService,
     required this.isDesktop,
   });
 
   final PasswordRepository repository;
+  final LanSyncService syncService;
   final bool isDesktop;
 
   @override
@@ -26,6 +31,7 @@ class _PasswordPageState extends State<PasswordPage> {
   final Set<String> _revealedAccounts = <String>{};
 
   List<WebsiteEntry> _sites = const [];
+  StreamSubscription<LanSyncCompletionEvent>? _syncEventSubscription;
   bool _isLoading = true;
   bool _isSubmitting = false;
   String _query = '';
@@ -34,11 +40,15 @@ class _PasswordPageState extends State<PasswordPage> {
   void initState() {
     super.initState();
     _searchController.addListener(_handleSearchChanged);
+    _syncEventSubscription = widget.syncService.syncEvents.listen((_) {
+      _loadSites();
+    });
     _loadSites();
   }
 
   @override
   void dispose() {
+    _syncEventSubscription?.cancel();
     _searchController
       ..removeListener(_handleSearchChanged)
       ..dispose();
@@ -116,8 +126,8 @@ class _PasswordPageState extends State<PasswordPage> {
       context: context,
       builder: (_) => SiteFormDialog(
         initialName: site.name,
-        title: '\u4fee\u6539\u7f51\u7ad9',
-        confirmLabel: '\u786e\u5b9a',
+        title: '修改网站',
+        confirmLabel: '确定',
       ),
     );
 
@@ -127,7 +137,7 @@ class _PasswordPageState extends State<PasswordPage> {
 
     await _runSubmission(
       action: () => widget.repository.updateSite(site.id, draft),
-      successMessage: '\u7f51\u7ad9\u5df2\u4fee\u6539',
+      successMessage: '网站已修改',
     );
   }
 
@@ -153,11 +163,10 @@ class _PasswordPageState extends State<PasswordPage> {
       context: context,
       builder: (_) => AccountFormDialog(
         site: site,
-        initialLabel: account.label,
         initialUsername: account.username,
         initialPassword: account.password,
-        title: '\u4fee\u6539\u8d26\u53f7',
-        confirmLabel: '\u786e\u5b9a',
+        title: '修改账号',
+        confirmLabel: '确定',
       ),
     );
 
@@ -167,7 +176,7 @@ class _PasswordPageState extends State<PasswordPage> {
 
     await _runSubmission(
       action: () => widget.repository.updateAccount(account.id, draft),
-      successMessage: '\u8d26\u53f7\u5df2\u4fee\u6539',
+      successMessage: '账号已修改',
     );
   }
 
@@ -250,33 +259,24 @@ class _PasswordPageState extends State<PasswordPage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-            child: Row(
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _MetricBarItem(
-                          label: l10n.metricSites,
-                          value: '${_sites.length}',
-                        ),
-                        const SizedBox(width: 12),
-                        _MetricBarItem(
-                          label: l10n.metricAccounts,
-                          value: '$accountCount',
-                        ),
-                      ],
-                    ),
-                  ),
+                _MetricBarItem(
+                  label: l10n.metricSites,
+                  value: '${_sites.length}',
                 ),
-                const SizedBox(width: 12),
+                _MetricBarItem(
+                  label: l10n.metricAccounts,
+                  value: '$accountCount',
+                ),
                 FilledButton.icon(
                   onPressed: _isSubmitting ? null : _addSite,
                   icon: const Icon(Icons.add_rounded),
                   label: Text(l10n.addSite),
                 ),
-                const SizedBox(width: 12),
                 OutlinedButton.icon(
                   onPressed: _isSubmitting ? null : _openRecycleBin,
                   icon: const Icon(Icons.restore_from_trash_rounded),
@@ -290,7 +290,7 @@ class _PasswordPageState extends State<PasswordPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: '\u641c\u7d22\u7f51\u7ad9\u3001\u8d26\u53f7',
+                hintText: '搜索网站、账号',
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: _query.isEmpty
                     ? null
@@ -346,10 +346,10 @@ class _MetricBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFF3EEE3),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -357,13 +357,19 @@ class _MetricBarItem extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF304136),
             ),
           ),
-          const SizedBox(width: 8),
-          Text(label),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF506154),
+            ),
+          ),
         ],
       ),
     );
@@ -396,6 +402,7 @@ class _WebsiteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final displayTag = l10n.siteAccountsCount(site.accounts.length);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -435,7 +442,7 @@ class _WebsiteCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 4),
-                    Text(site.domain),
+                    Text(displayTag),
                   ],
                 ),
               ),
@@ -451,7 +458,7 @@ class _WebsiteCard extends StatelessWidget {
                 itemBuilder: (context) => [
                   const PopupMenuItem<String>(
                     value: 'edit',
-                    child: Text('\u4fee\u6539\u7f51\u7ad9'),
+                    child: Text('修改网站'),
                   ),
                   PopupMenuItem<String>(
                     value: 'delete',
@@ -545,14 +552,10 @@ class _AccountTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                account.label,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
               const Spacer(),
               IconButton(
                 onPressed: onEdit,
-                tooltip: '\u4fee\u6539\u8d26\u53f7',
+                tooltip: '修改账号',
                 icon: const Icon(Icons.edit_outlined, size: 18),
               ),
               IconButton(
@@ -725,7 +728,7 @@ class _RecycleBinSheetState extends State<_RecycleBinSheet> {
             ),
             const SizedBox(height: 8),
             Text(
-              '这里只显示已经删除并等待恢复的账号。恢复后，账号会重新出现在主列表里。',
+              '这里仅显示已删除并等待恢复的账号。恢复后，账号会重新出现在主列表中。',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -742,8 +745,7 @@ class _RecycleBinSheetState extends State<_RecycleBinSheet> {
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final account = widget.deletedAccounts[index];
-                    final isRestoring =
-                        _restoringAccountId == account.accountId;
+                    final isRestoring = _restoringAccountId == account.accountId;
                     return Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(

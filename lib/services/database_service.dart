@@ -1,20 +1,24 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'app_storage_paths.dart';
 import 'password_crypto_service.dart';
 
 class DatabaseService {
-  DatabaseService({this._databasePath})
-    : _cryptoService = PasswordCryptoService();
+  DatabaseService({
+    String? databasePath,
+    Future<String> Function()? appStorageDirectoryResolver,
+  }) : _databasePath = databasePath,
+       _appStorageDirectoryResolver = appStorageDirectoryResolver,
+       _cryptoService = PasswordCryptoService();
 
   static final DatabaseService instance = DatabaseService();
 
   Database? _database;
   final String? _databasePath;
+  final Future<String> Function()? _appStorageDirectoryResolver;
   final PasswordCryptoService _cryptoService;
   final Random _random = Random.secure();
 
@@ -95,8 +99,10 @@ class DatabaseService {
   }
 
   Future<String> _resolveDatabasePath() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return path.join(directory.path, 'password_vault.db');
+    return AppStoragePaths.resolveDatabasePath(
+      createIfMissing: true,
+      appStorageDirectoryResolver: _appStorageDirectoryResolver,
+    );
   }
 
   Future<void> _createSchema(DatabaseExecutor db) async {

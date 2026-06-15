@@ -4,6 +4,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'app.dart';
 import 'repositories/password_repository.dart';
+import 'services/app_layout.dart';
 import 'services/password_crypto_service.dart';
 
 Future<void> main() async {
@@ -20,7 +21,10 @@ Future<void> main() async {
     const windowOptions = WindowOptions(
       size: Size(1280, 720),
       center: true,
-      minimumSize: Size(980, 640),
+      minimumSize: Size(
+        AppLayout.desktopMinWidth,
+        AppLayout.desktopMinHeight,
+      ),
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
