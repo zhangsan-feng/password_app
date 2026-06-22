@@ -21,10 +21,7 @@ Future<void> main() async {
     const windowOptions = WindowOptions(
       size: Size(1280, 720),
       center: true,
-      minimumSize: Size(
-        AppLayout.desktopMinWidth,
-        AppLayout.desktopMinHeight,
-      ),
+      minimumSize: Size(AppLayout.desktopMinWidth, AppLayout.desktopMinHeight),
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -39,5 +36,4 @@ Future<void> main() async {
   runApp(
     PasswordVaultApp(repository: repository, cryptoService: cryptoService),
   );
-
 }

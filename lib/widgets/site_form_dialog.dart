@@ -7,11 +7,13 @@ class SiteFormDialog extends StatefulWidget {
   const SiteFormDialog({
     super.key,
     this.initialName,
+    this.initialDomain,
     this.title,
     this.confirmLabel,
   });
 
   final String? initialName;
+  final String? initialDomain;
   final String? title;
   final String? confirmLabel;
 
@@ -22,6 +24,7 @@ class SiteFormDialog extends StatefulWidget {
 class _SiteFormDialogState extends State<SiteFormDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _domainController = TextEditingController();
 
   static const _defaultColors = [
     0xFF6C8A7A,
@@ -35,11 +38,13 @@ class _SiteFormDialogState extends State<SiteFormDialog> {
   void initState() {
     super.initState();
     _nameController.text = widget.initialName ?? '';
+    _domainController.text = widget.initialDomain ?? '';
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _domainController.dispose();
     super.dispose();
   }
 
@@ -54,16 +59,20 @@ class _SiteFormDialogState extends State<SiteFormDialog> {
         width: 360,
         child: Form(
           key: _formKey,
-          child: TextFormField(
-            controller: _nameController,
-            autofocus: true,
-            decoration: InputDecoration(labelText: l10n.dialogSiteName),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return l10n.dialogEnterSiteName;
-              }
-              return null;
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                autofocus: true,
+                decoration: InputDecoration(labelText: l10n.dialogSiteName),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _domainController,
+                decoration: InputDecoration(labelText: l10n.dialogDomain),
+              ),
+            ],
           ),
         ),
       ),
@@ -76,10 +85,11 @@ class _SiteFormDialogState extends State<SiteFormDialog> {
           onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
               final name = _nameController.text.trim();
+              final domain = _domainController.text.trim();
               Navigator.of(context).pop(
                 WebsiteDraft(
                   name: name,
-                  domain: _buildDomain(name),
+                  domain: domain,
                   colorValue: _pickColor(name),
                 ),
               );
@@ -89,23 +99,6 @@ class _SiteFormDialogState extends State<SiteFormDialog> {
         ),
       ],
     );
-  }
-
-  String _buildDomain(String name) {
-    final normalized = name
-        .toLowerCase()
-        .replaceAll(RegExp(r'\s+'), '')
-        .replaceAll(RegExp(r'[^a-z0-9._-]'), '');
-
-    if (normalized.isEmpty) {
-      return 'site.local';
-    }
-
-    if (normalized.contains('.')) {
-      return normalized;
-    }
-
-    return '$normalized.com';
   }
 
   int _pickColor(String name) {

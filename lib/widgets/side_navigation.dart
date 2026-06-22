@@ -21,6 +21,16 @@ class SideNavigation extends StatelessWidget {
         label: '\u5bc6\u7801',
       ),
       (
+        section: AppSection.memos,
+        icon: Icons.sticky_note_2_outlined,
+        label: '备忘录',
+      ),
+      (
+        section: AppSection.generator,
+        icon: Icons.auto_awesome_rounded,
+        label: '\u5bc6\u7801\u751f\u6210',
+      ),
+      (
         section: AppSection.sync,
         icon: Icons.sync_rounded,
         label: '\u540c\u6b65',

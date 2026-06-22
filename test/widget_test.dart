@@ -7,7 +7,6 @@ import 'package:password_app/pages/settings_page.dart';
 import 'package:password_app/repositories/password_repository.dart';
 
 class _FakePasswordRepository extends PasswordRepository {
-  @override
   Future<void> rotateSecretKey({
     void Function(int processed, int total)? onProgress,
   }) async {

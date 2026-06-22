@@ -7,12 +7,8 @@ import 'app_storage_paths.dart';
 import 'password_crypto_service.dart';
 
 class DatabaseService {
-  DatabaseService({
-    String? databasePath,
-    Future<String> Function()? appStorageDirectoryResolver,
-  }) : _databasePath = databasePath,
-       _appStorageDirectoryResolver = appStorageDirectoryResolver,
-       _cryptoService = PasswordCryptoService();
+  DatabaseService({this._databasePath, this._appStorageDirectoryResolver})
+    : _cryptoService = PasswordCryptoService();
 
   static final DatabaseService instance = DatabaseService();
 
@@ -42,7 +38,7 @@ class DatabaseService {
 
     _database = await openDatabase(
       databasePath,
-      version: 4,
+      version: 6,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -83,6 +79,14 @@ class DatabaseService {
         if (oldVersion >= 3 && oldVersion < 4) {
           await _migrateToSoftDeleteSchema(db);
         }
+
+        if (oldVersion < 5) {
+          await _migrateToSiteSoftDeleteSchema(db);
+        }
+
+        if (oldVersion < 6) {
+          await _migrateToMemoSchema(db);
+        }
       },
     );
 
@@ -112,6 +116,7 @@ class DatabaseService {
         name TEXT NOT NULL,
         domain TEXT NOT NULL,
         color_value INTEGER NOT NULL,
+        is_delete INTEGER NOT NULL DEFAULT 0,
         updated_at TEXT NOT NULL
       )
     ''');
@@ -149,6 +154,7 @@ class DatabaseService {
         id TEXT PRIMARY KEY,
         account_id TEXT NOT NULL,
         site_id TEXT NOT NULL,
+        site_name TEXT NOT NULL,
         account_name TEXT NOT NULL,
         username TEXT NOT NULL,
         password TEXT NOT NULL,
@@ -158,6 +164,14 @@ class DatabaseService {
         updated_at TEXT NOT NULL,
         FOREIGN KEY(account_id) REFERENCES accounts(id) ON DELETE CASCADE,
         FOREIGN KEY(site_id) REFERENCES sites(id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE memos(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT NOT NULL,
+        updated_at TEXT NOT NULL
       )
     ''');
   }
@@ -181,6 +195,7 @@ class DatabaseService {
           'name': row['name'] as String,
           'domain': row['domain'] as String,
           'color_value': row['color_value'] as int,
+          'is_delete': 0,
           'updated_at': now,
         });
       }
@@ -231,6 +246,7 @@ class DatabaseService {
         id TEXT PRIMARY KEY,
         account_id TEXT NOT NULL,
         site_id TEXT NOT NULL,
+        site_name TEXT NOT NULL,
         account_name TEXT NOT NULL,
         username TEXT NOT NULL,
         password TEXT NOT NULL,
@@ -242,6 +258,54 @@ class DatabaseService {
         FOREIGN KEY(site_id) REFERENCES sites(id) ON DELETE CASCADE
       )
     ''');
+  }
+
+  Future<void> _migrateToSiteSoftDeleteSchema(Database db) async {
+    final hasSiteIsDelete = await _tableHasColumn(db, 'sites', 'is_delete');
+    if (!hasSiteIsDelete) {
+      await db.execute(
+        'ALTER TABLE sites ADD COLUMN is_delete INTEGER NOT NULL DEFAULT 0',
+      );
+    }
+
+    final hasRecycleSiteName = await _tableHasColumn(
+      db,
+      'account_recycle_bin',
+      'site_name',
+    );
+    if (!hasRecycleSiteName) {
+      await db.execute(
+        "ALTER TABLE account_recycle_bin ADD COLUMN site_name TEXT NOT NULL DEFAULT ''",
+      );
+    }
+
+    await db.execute('''
+      UPDATE account_recycle_bin
+      SET site_name = COALESCE(
+        NULLIF(site_name, ''),
+        (SELECT sites.name FROM sites WHERE sites.id = account_recycle_bin.site_id),
+        ''
+      )
+    ''');
+  }
+
+  Future<void> _migrateToMemoSchema(Database db) async {
+    await db.execute('''
+      CREATE TABLE memos(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<bool> _tableHasColumn(
+    DatabaseExecutor db,
+    String tableName,
+    String columnName,
+  ) async {
+    final columns = await db.rawQuery('PRAGMA table_info($tableName)');
+    return columns.any((column) => column['name'] == columnName);
   }
 
   String _generateUuid() {

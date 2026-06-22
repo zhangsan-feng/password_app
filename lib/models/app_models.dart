@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppSection { passwords, sync, settings }
+enum AppSection { passwords, memos, generator, sync, settings }
 
 class WebsiteEntry {
   const WebsiteEntry({
@@ -41,6 +41,7 @@ class RecycledAccountEntry {
     required this.id,
     required this.accountId,
     required this.siteId,
+    required this.siteName,
     required this.accountName,
     required this.username,
     required this.password,
@@ -50,10 +51,23 @@ class RecycledAccountEntry {
   final String id;
   final String accountId;
   final String siteId;
+  final String siteName;
   final String accountName;
   final String username;
   final String password;
   final DateTime deletedAt;
+}
+
+class MemoEntry {
+  const MemoEntry({
+    required this.id,
+    required this.content,
+    required this.updatedAt,
+  });
+
+  final int id;
+  final String content;
+  final DateTime updatedAt;
 }
 
 class SettingSwitchItem {
@@ -87,4 +101,22 @@ class AccountDraft {
   final String label;
   final String username;
   final String password;
+}
+
+class MemoDraft {
+  const MemoDraft({required this.content});
+
+  final String content;
+}
+
+class UserAccountImportResult {
+  const UserAccountImportResult({
+    required this.addedSiteCount,
+    required this.addedAccountCount,
+    required this.updatedAccountCount,
+  });
+
+  final int addedSiteCount;
+  final int addedAccountCount;
+  final int updatedAccountCount;
 }

@@ -5,7 +5,9 @@ import '../repositories/password_repository.dart';
 import '../services/app_layout.dart';
 import '../services/lan_sync_service.dart';
 import '../widgets/side_navigation.dart';
+import 'memo_page.dart';
 import 'password_page.dart';
+import 'password_generator_page.dart';
 import 'settings_page.dart';
 import 'sync_page.dart';
 
@@ -98,6 +100,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           syncService: widget.syncService,
           isDesktop: isDesktop,
         );
+      case AppSection.memos:
+        return MemoPage(repository: widget.repository, isDesktop: isDesktop);
+      case AppSection.generator:
+        return const PasswordGeneratorPage();
       case AppSection.sync:
         return SyncPage(
           repository: widget.repository,
@@ -112,6 +118,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (section) {
       case AppSection.passwords:
         return '\u5bc6\u7801';
+      case AppSection.memos:
+        return '备忘录';
+      case AppSection.generator:
+        return '\u5bc6\u7801\u751f\u6210';
       case AppSection.sync:
         return '\u540c\u6b65';
       case AppSection.settings:
