@@ -172,19 +172,22 @@ class _MemoMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labelStyle = Theme.of(context).textTheme.bodyMedium;
+    final valueStyle = Theme.of(context).textTheme.titleLarge;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
         color: const Color(0xFFF3EEE3),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(label, style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 4),
-          Text(value, style: Theme.of(context).textTheme.titleLarge),
+          Text(label, style: labelStyle),
+          const SizedBox(width: 12),
+          Text(value, style: valueStyle),
         ],
       ),
     );
@@ -261,7 +264,11 @@ class _MemoCardContent extends StatelessWidget {
 
   String _previewText(String content) {
     final normalized = content.replaceAll(RegExp(r'\s+'), ' ').trim();
-    return normalized.isEmpty ? '空白备忘录' : normalized;
+    if (normalized.isEmpty) {
+      return '空白备忘录';
+    }
+
+    return normalized.characters.take(10).toString();
   }
 
   String _formatTime(DateTime value) {

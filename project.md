@@ -477,7 +477,7 @@ repositories/
         memo_page.dart/
             MemoPage
                 build()
-                    负责构建备忘录页面整体布局、顶部统计、添加按钮和备忘录列表
+                    负责构建备忘录页面整体布局、顶部横向统计、添加按钮和备忘录列表
             _MemoPageState
                 initState()
                     负责首次加载备忘录数据
@@ -489,6 +489,9 @@ repositories/
                     负责打开查看弹窗、展示完整内容并保存编辑
                 _deleteMemo()
                     负责删除备忘录并刷新列表
+        _MemoCardContent
+            _previewText()
+                负责清理备忘录预览文本并只显示前10个字
 android/
     app/
         src/main/kotlin/com/example/password_app/MainActivity.kt/
