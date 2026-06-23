@@ -1,17 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/app_models.dart';
 import '../repositories/password_repository.dart';
+import '../services/lan_sync_service.dart';
 import '../widgets/memo_dialog.dart';
 
 class MemoPage extends StatefulWidget {
   const MemoPage({
     super.key,
     required this.repository,
+    required this.syncService,
     required this.isDesktop,
   });
 
   final PasswordRepository repository;
+  final LanSyncService syncService;
   final bool isDesktop;
 
   @override
@@ -20,13 +25,23 @@ class MemoPage extends StatefulWidget {
 
 class _MemoPageState extends State<MemoPage> {
   List<MemoEntry> _memos = const [];
+  StreamSubscription<LanSyncCompletionEvent>? _syncEventSubscription;
   bool _isLoading = true;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
+    _syncEventSubscription = widget.syncService.syncEvents.listen((_) {
+      _loadMemos();
+    });
     _loadMemos();
+  }
+
+  @override
+  void dispose() {
+    _syncEventSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadMemos() async {

@@ -66,6 +66,7 @@ extension LanSyncServiceServer on LanSyncService {
     try {
       final sourceName = await _fetchPeerName(client, uri) ?? uri.host;
       final localPayload = await _repository.exportPlainSyncData();
+      _log(_describeSyncPayload('Sending sync payload', localPayload));
       final request = await client.postUrl(
         uri.replace(path: LanSyncService._serviceMergePath, query: ''),
       );
@@ -87,6 +88,7 @@ extension LanSyncServiceServer on LanSyncService {
         throw Exception('Peer data format is invalid.');
       }
 
+      _log(_describeSyncPayload('Received sync payload', decoded));
       await _repository.mergePlainSyncData(decoded);
       _emitSyncEvent(peerName: sourceName);
       _log('Sync succeeded with $uri.');
@@ -152,6 +154,7 @@ extension LanSyncServiceServer on LanSyncService {
       if (request.method == 'GET' &&
           request.uri.path == LanSyncService._serviceExportPath) {
         final payload = await _repository.exportPlainSyncData();
+        _log(_describeSyncPayload('Export endpoint payload', payload));
         request.response
           ..statusCode = HttpStatus.ok
           ..headers.contentType = ContentType.json
@@ -176,9 +179,15 @@ extension LanSyncServiceServer on LanSyncService {
             return;
           }
 
+          _log(
+            _describeSyncPayload('Merge endpoint received payload', decoded),
+          );
           await _repository.mergePlainSyncData(decoded);
           _emitSyncEvent(peerName: sourceName);
           final payload = await _repository.exportPlainSyncData();
+          _log(
+            _describeSyncPayload('Merge endpoint response payload', payload),
+          );
           request.response
             ..statusCode = HttpStatus.ok
             ..headers.contentType = ContentType.json
@@ -280,5 +289,12 @@ extension LanSyncServiceServer on LanSyncService {
     }
 
     return secureParsed;
+  }
+
+  String _describeSyncPayload(String prefix, Map<String, dynamic> payload) {
+    final rawMemos = payload['memos'];
+    final memoCount = rawMemos is List ? rawMemos.length : 0;
+    final version = payload['version'];
+    return '$prefix: version=$version memos=$memoCount';
   }
 }

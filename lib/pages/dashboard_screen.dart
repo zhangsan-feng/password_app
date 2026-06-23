@@ -101,7 +101,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           isDesktop: isDesktop,
         );
       case AppSection.memos:
-        return MemoPage(repository: widget.repository, isDesktop: isDesktop);
+        return MemoPage(
+          repository: widget.repository,
+          syncService: widget.syncService,
+          isDesktop: isDesktop,
+        );
       case AppSection.generator:
         return const PasswordGeneratorPage();
       case AppSection.sync:

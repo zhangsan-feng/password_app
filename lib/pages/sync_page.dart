@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../repositories/password_repository.dart';
@@ -24,7 +22,6 @@ class _SyncPageState extends State<SyncPage> {
 
   List<LanSyncPeerInfo> _discoveredPeers = const [];
   LanSyncPeerInfo? _selectedPeer;
-  StreamSubscription<LanSyncCompletionEvent>? _syncEventSubscription;
   bool _isSyncing = false;
   bool _isDiscovering = false;
   bool _isPreparing = true;
@@ -33,21 +30,13 @@ class _SyncPageState extends State<SyncPage> {
   @override
   void initState() {
     super.initState();
-    _syncEventSubscription = widget.syncService.syncEvents.listen(
-      _handleSyncEvent,
-    );
     _initializeSync();
   }
 
   @override
   void dispose() {
-    _syncEventSubscription?.cancel();
     _serverController.dispose();
     super.dispose();
-  }
-
-  void _handleSyncEvent(LanSyncCompletionEvent event) {
-    _showMessage('收到对方 ${event.peerName} 设备的数据，已经同步完成');
   }
 
   Future<void> _initializeSync() async {
@@ -168,7 +157,7 @@ class _SyncPageState extends State<SyncPage> {
   @override
   Widget build(BuildContext context) {
     final syncButtonLabel = _isSyncing
-        ? '同步中...'
+        ? '同步中..'
         : _selectedPeer == null
         ? '请选择设备'
         : '与 ${_selectedPeer!.name} 双向同步';
@@ -222,7 +211,7 @@ class _SyncPageState extends State<SyncPage> {
                     FilledButton.icon(
                       onPressed: _isDiscovering ? null : _discoverPeers,
                       icon: const Icon(Icons.radar_rounded),
-                      label: Text(_isDiscovering ? '扫描中...' : '扫描设备'),
+                      label: Text(_isDiscovering ? '扫描中..' : '扫描设备'),
                     ),
                     FilledButton.icon(
                       onPressed: _isSyncing || _selectedPeer == null
@@ -325,7 +314,7 @@ class _SyncPageState extends State<SyncPage> {
                 FilledButton.icon(
                   onPressed: _isSyncing ? null : _syncFromServer,
                   icon: const Icon(Icons.sync_rounded),
-                  label: Text(_isSyncing ? '同步中...' : '与服务器双向同步'),
+                  label: Text(_isSyncing ? '同步中..' : '与服务器双向同步'),
                 ),
               ],
             ),

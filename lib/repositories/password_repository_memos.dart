@@ -8,7 +8,7 @@ extension PasswordRepositoryMemos on PasswordRepository {
     return rows
         .map(
           (row) => MemoEntry(
-            id: row['id'] as int,
+            id: row['id'] as String,
             content: row['content'] as String,
             updatedAt:
                 DateTime.tryParse(row['updated_at'] as String)?.toLocal() ??
@@ -21,12 +21,13 @@ extension PasswordRepositoryMemos on PasswordRepository {
   Future<void> addMemo(MemoDraft draft) async {
     final db = await _databaseService.database;
     await db.insert('memos', {
+      'id': _generateUuid(),
       'content': draft.content.trim(),
       'updated_at': _nowIso(),
     });
   }
 
-  Future<void> updateMemo(int memoId, MemoDraft draft) async {
+  Future<void> updateMemo(String memoId, MemoDraft draft) async {
     final db = await _databaseService.database;
     await db.update(
       'memos',
@@ -36,7 +37,7 @@ extension PasswordRepositoryMemos on PasswordRepository {
     );
   }
 
-  Future<void> deleteMemo(int memoId) async {
+  Future<void> deleteMemo(String memoId) async {
     final db = await _databaseService.database;
     await db.delete('memos', where: 'id = ?', whereArgs: [memoId]);
   }

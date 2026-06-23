@@ -65,7 +65,7 @@ class MemoEntry {
     required this.updatedAt,
   });
 
-  final int id;
+  final String id;
   final String content;
   final DateTime updatedAt;
 }

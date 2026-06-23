@@ -14,7 +14,7 @@ lib/
     models/
         app_models.dart/
             AppSection
-                页面分区枚举，对应密码 / 密码生成 / 同步 / 设置四个主页面
+                页面分区枚举，对应密码 / 备忘录 / 密码生成 / 同步 / 设置五个主页面
 
             WebsiteEntry
                 color
@@ -135,7 +135,7 @@ lib/
         sync_page.dart/
             SyncPage
                 build()
-                    负责同步页面 UI，包含扫描局域网设备、选择设备同步、手动输入地址同步、监听同步完成提示
+                    负责同步页面 UI，包含扫描局域网设备、选择设备同步、手动输入地址同步
 
         settings_page.dart/
             SettingsPage
@@ -160,11 +160,11 @@ lib/
                 fetchDeletedAccounts()
                     负责读取回收站中的已删除账号并解密密码
                 exportPlainSyncData()
-                    负责导出网站、账号、历史记录、回收站的明文同步数据
+                    负责导出网站、账号、历史记录、回收站和备忘录的明文同步数据
                 importPlainSyncData()
                     负责导入外部同步数据
                 mergePlainSyncData()
-                    负责在事务中合并同步数据
+                    负责在事务中合并网站、账号、历史、回收站和备忘录同步数据
                 _mergeSites()
                     负责合并网站同步数据和删除状态
                 _mergeAccounts()
@@ -173,6 +173,8 @@ lib/
                     负责合并密码历史同步数据
                 _mergeAccountRecycleBin()
                     负责合并账号回收站同步数据
+                _mergeMemos()
+                    负责合并备忘录同步数据
         password_repository_user_transfer.dart/
             PasswordRepositoryUserTransfer
                 exportUserAccountData()
@@ -259,6 +261,10 @@ lib/
                     负责迁移账号软删除和回收站表结构
                 _migrateToSiteSoftDeleteSchema()
                     负责迁移网站软删除字段和回收站网站名字段
+                _migrateToMemoSchema()
+                    负责补齐备忘录表结构
+                _migrateMemoIdsToUuid()
+                    负责把旧备忘录整数主键迁移为 UUID
                 _tableHasColumn()
                     负责检查表字段是否存在
                 _generateUuid()
@@ -467,7 +473,7 @@ repositories/
             fetchMemos()
                 负责按更新时间倒序读取全部备忘录
             addMemo()
-                负责新增备忘录
+                负责生成 UUID 并新增备忘录
             updateMemo()
                 负责更新备忘录内容和更新时间
             deleteMemo()
@@ -480,7 +486,9 @@ repositories/
                     负责构建备忘录页面整体布局、顶部横向统计、添加按钮和备忘录列表
             _MemoPageState
                 initState()
-                    负责首次加载备忘录数据
+                    负责注册同步监听并首次加载备忘录数据
+                dispose()
+                    负责释放备忘录同步订阅
                 _loadMemos()
                     负责读取全部备忘录并刷新页面状态
                 _addMemo()

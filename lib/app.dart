@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -23,6 +25,9 @@ class PasswordVaultApp extends StatefulWidget {
 
 class _PasswordVaultAppState extends State<PasswordVaultApp> {
   LanSyncService? _syncService;
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+  StreamSubscription<LanSyncCompletionEvent>? _syncEventSubscription;
   bool _isPreparing = true;
   bool _requiresUnlock = false;
   String? _unlockError;
@@ -33,13 +38,30 @@ class _PasswordVaultAppState extends State<PasswordVaultApp> {
   @override
   void initState() {
     super.initState();
+    _syncEventSubscription = _resolvedSyncService.syncEvents.listen(
+      _handleSyncCompleted,
+    );
     _prepareVault();
   }
 
   @override
   void dispose() {
+    _syncEventSubscription?.cancel();
     _syncService?.stopServer();
     super.dispose();
+  }
+
+  void _handleSyncCompleted(LanSyncCompletionEvent event) {
+    final messenger = _scaffoldMessengerKey.currentState;
+    if (messenger == null) {
+      return;
+    }
+
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text('收到对方 ${event.peerName} 设备的数据，已经同步完成')),
+      );
   }
 
   Future<void> _prepareVault() async {
@@ -103,6 +125,7 @@ class _PasswordVaultAppState extends State<PasswordVaultApp> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       locale: const Locale('zh'),
       supportedLocales: AppLocalizations.supportedLocales,

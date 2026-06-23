@@ -38,7 +38,7 @@ class DatabaseService {
 
     _database = await openDatabase(
       databasePath,
-      version: 6,
+      version: 7,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -86,6 +86,10 @@ class DatabaseService {
 
         if (oldVersion < 6) {
           await _migrateToMemoSchema(db);
+        }
+
+        if (oldVersion < 7) {
+          await _migrateMemoIdsToUuid(db);
         }
       },
     );
@@ -169,7 +173,7 @@ class DatabaseService {
 
     await db.execute('''
       CREATE TABLE memos(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         content TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -290,13 +294,61 @@ class DatabaseService {
   }
 
   Future<void> _migrateToMemoSchema(Database db) async {
+    final hasMemoTable = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'memos'",
+    );
+    if (hasMemoTable.isNotEmpty) {
+      return;
+    }
+
     await db.execute('''
       CREATE TABLE memos(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         content TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
     ''');
+  }
+
+  Future<void> _migrateMemoIdsToUuid(Database db) async {
+    final hasMemoTable = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'memos'",
+    );
+    if (hasMemoTable.isEmpty) {
+      return;
+    }
+
+    final columns = await db.rawQuery('PRAGMA table_info(memos)');
+    final idColumn = columns.cast<Map>().firstWhere(
+      (column) => column['name'] == 'id',
+      orElse: () => <String, Object?>{},
+    );
+    final idType = '${idColumn['type'] ?? ''}'.toUpperCase();
+    if (idType == 'TEXT') {
+      return;
+    }
+
+    await db.transaction((txn) async {
+      await txn.execute('ALTER TABLE memos RENAME TO memos_legacy');
+      await txn.execute('''
+        CREATE TABLE memos(
+          id TEXT PRIMARY KEY,
+          content TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      ''');
+
+      final rows = await txn.query('memos_legacy', orderBy: 'updated_at DESC');
+      for (final row in rows) {
+        await txn.insert('memos', {
+          'id': _generateUuid(),
+          'content': row['content'] as String,
+          'updated_at': row['updated_at'] as String,
+        });
+      }
+
+      await txn.execute('DROP TABLE memos_legacy');
+    });
   }
 
   Future<bool> _tableHasColumn(

@@ -55,6 +55,7 @@ extension PasswordRepositorySync on PasswordRepository {
       'account_recycle_bin',
       orderBy: 'updated_at DESC',
     );
+    final memoRows = await db.query('memos', orderBy: 'updated_at DESC');
 
     final accounts = <Map<String, Object>>[];
     for (final row in accountRows) {
@@ -108,7 +109,7 @@ extension PasswordRepositorySync on PasswordRepository {
     }
 
     return {
-      'version': 4,
+      'version': 5,
       'sites': siteRows
           .map(
             (row) => <String, Object>{
@@ -124,6 +125,15 @@ extension PasswordRepositorySync on PasswordRepository {
       'accounts': accounts,
       'passwordHistory': passwordHistory,
       'accountRecycleBin': accountRecycleBin,
+      'memos': memoRows
+          .map(
+            (row) => <String, Object>{
+              'id': row['id'] as String,
+              'content': row['content'] as String,
+              'updatedAt': row['updated_at'] as String,
+            },
+          )
+          .toList(),
     };
   }
 
@@ -138,6 +148,7 @@ extension PasswordRepositorySync on PasswordRepository {
       await _mergeAccounts(txn, payload['accounts']);
       await _mergePasswordHistory(txn, payload['passwordHistory']);
       await _mergeAccountRecycleBin(txn, payload['accountRecycleBin']);
+      await _mergeMemos(txn, payload['memos']);
     });
   }
 
@@ -461,6 +472,55 @@ extension PasswordRepositorySync on PasswordRepository {
           passwordChangedAt: passwordChangedAt,
           deletedAt: deletedAt,
           updatedAt: updatedAt,
+        );
+      }
+    }
+  }
+
+  Future<void> _mergeMemos(Transaction txn, Object? rawMemos) async {
+    if (rawMemos is! List) {
+      return;
+    }
+
+    for (final rawMemo in rawMemos) {
+      if (rawMemo is! Map) {
+        continue;
+      }
+
+      final memo = rawMemo.map((key, value) => MapEntry(key.toString(), value));
+      final id = '${memo['id'] ?? ''}'.trim();
+      final content = '${memo['content'] ?? ''}';
+      final updatedAt = _normalizedTimestamp(memo['updatedAt']);
+
+      if (id.isEmpty || content.trim().isEmpty) {
+        continue;
+      }
+
+      final existing = await txn.query(
+        'memos',
+        where: 'id = ?',
+        whereArgs: [id],
+        limit: 1,
+      );
+
+      if (existing.isEmpty) {
+        await txn.insert('memos', {
+          'id': id,
+          'content': content,
+          'updated_at': updatedAt,
+        });
+        continue;
+      }
+
+      final currentUpdatedAt = _normalizedTimestamp(
+        existing.first['updated_at'] as String,
+      );
+      if (_isIncomingNewer(updatedAt, currentUpdatedAt)) {
+        await txn.update(
+          'memos',
+          {'content': content, 'updated_at': updatedAt},
+          where: 'id = ?',
+          whereArgs: [id],
         );
       }
     }
