@@ -34,6 +34,15 @@ class _MemoDialogState extends State<MemoDialog> {
     super.dispose();
   }
 
+  Widget _buildContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) {
+    return AdaptiveTextSelectionToolbar.editableText(
+      editableTextState: editableTextState,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -46,6 +55,10 @@ class _MemoDialogState extends State<MemoDialog> {
           child: TextFormField(
             controller: _contentController,
             autofocus: true,
+            enableInteractiveSelection: true,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            contextMenuBuilder: _buildContextMenu,
             minLines: 10,
             maxLines: 16,
             decoration: const InputDecoration(

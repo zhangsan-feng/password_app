@@ -20,9 +20,9 @@ class _PasswordGeneratorPageState extends State<PasswordGeneratorPage> {
     text: '${PasswordGeneratorOptions.defaultCount}',
   );
 
-  bool _includeUppercase = true;
-  bool _includeLowercase = true;
-  bool _includeDigits = true;
+  final bool _includeUppercase = true;
+  final bool _includeLowercase = true;
+  final bool _includeDigits = true;
   bool _includeSymbols = true;
   List<String> _generatedPasswords = const [];
 
@@ -82,54 +82,24 @@ class _PasswordGeneratorPageState extends State<PasswordGeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF9),
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            _GeneratorCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('生成规则', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      _RuleChip(
-                        label: '大写字母',
-                        value: _includeUppercase,
-                        onChanged: (value) {
-                          setState(() {
-                            _includeUppercase = value;
-                          });
-                        },
-                      ),
-                      _RuleChip(
-                        label: '小写字母',
-                        value: _includeLowercase,
-                        onChanged: (value) {
-                          setState(() {
-                            _includeLowercase = value;
-                          });
-                        },
-                      ),
-                      _RuleChip(
-                        label: '数字',
-                        value: _includeDigits,
-                        onChanged: (value) {
-                          setState(() {
-                            _includeDigits = value;
-                          });
-                        },
-                      ),
-                      _RuleChip(
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          _GeneratorCard(
+            key: const ValueKey('password-generator-rules'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  key: const ValueKey('password-generator-rule-row'),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 96,
+                      height: 56,
+                      child: _RuleChip(
                         label: '特殊字符',
                         value: _includeSymbols,
                         onChanged: (value) {
@@ -138,10 +108,17 @@ class _PasswordGeneratorPageState extends State<PasswordGeneratorPage> {
                           });
                         },
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF7F1),
+                    borderRadius: BorderRadius.circular(18),
                   ),
-                  const SizedBox(height: 18),
-                  Row(
+                  child: Row(
                     children: [
                       Expanded(
                         child: TextField(
@@ -149,94 +126,91 @@ class _PasswordGeneratorPageState extends State<PasswordGeneratorPage> {
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: '密码长度',
-                            hintText: '默认 16',
+                            hintText: '16',
+                            suffixText: '位',
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
                           controller: _countController,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: '生成次数',
-                            hintText: '默认 10',
+                            hintText: '10',
+                            suffixText: '条',
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  FilledButton.icon(
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  key: const ValueKey('password-generator-generate-button'),
+                  width: double.infinity,
+                  child: FilledButton.icon(
                     onPressed: _generatePasswords,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                     icon: const Icon(Icons.auto_awesome_rounded),
                     label: const Text('生成密码'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Expanded(
+            child: _GeneratorCard(
+              key: const ValueKey('password-generator-results'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _generatedPasswords.isEmpty
+                        ? Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              '当前还没有生成结果，点击上方按钮开始生成。',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          )
+                        : Scrollbar(
+                            controller: _resultsScrollController,
+                            thumbVisibility: true,
+                            child: ListView.separated(
+                              controller: _resultsScrollController,
+                              itemCount: _generatedPasswords.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                final password = _generatedPasswords[index];
+                                return _PasswordRow(
+                                  password: password,
+                                  onCopy: () => _copyPassword(password),
+                                );
+                              },
+                            ),
+                          ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 18),
-            Expanded(
-              child: _GeneratorCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '生成结果',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ),
-                        Text(
-                          '共 ${_generatedPasswords.length} 条',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: _generatedPasswords.isEmpty
-                          ? Align(
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                '当前还没有生成结果，点击上方按钮开始生成。',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            )
-                          : Scrollbar(
-                              controller: _resultsScrollController,
-                              thumbVisibility: true,
-                              child: ListView.separated(
-                                controller: _resultsScrollController,
-                                itemCount: _generatedPasswords.length,
-                                separatorBuilder: (_, _) =>
-                                    const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final password = _generatedPasswords[index];
-                                  return _PasswordRow(
-                                    index: index + 1,
-                                    password: password,
-                                    onCopy: () => _copyPassword(password),
-                                  );
-                                },
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _GeneratorCard extends StatelessWidget {
-  const _GeneratorCard({required this.child});
+  const _GeneratorCard({super.key, required this.child});
 
   final Widget child;
 
@@ -267,62 +241,58 @@ class _RuleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilterChip(
-      selected: value,
-      onSelected: onChanged,
-      label: Text(label),
-      selectedColor: const Color(0xFFDCE8DD),
-      checkmarkColor: const Color(0xFF304136),
-      side: const BorderSide(color: Color(0xFFE1D9CB)),
-      labelStyle: const TextStyle(
-        color: Color(0xFF304136),
-        fontWeight: FontWeight.w600,
+    return SizedBox.expand(
+      child: FilterChip(
+        selected: value,
+        onSelected: onChanged,
+        label: SizedBox(
+          key: const ValueKey('password-generator-symbol-chip-label'),
+          width: 96,
+          height: 56,
+          child: Center(child: Text(label)),
+        ),
+        showCheckmark: false,
+        selectedColor: const Color(0xFFDCE8DD),
+        backgroundColor: Colors.transparent,
+        side: BorderSide(
+          color: value ? const Color(0xFFC7D8C9) : Colors.transparent,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: EdgeInsets.zero,
+        labelPadding: EdgeInsets.zero,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.compact,
+        labelStyle: const TextStyle(
+          color: Color(0xFF304136),
+          fontWeight: FontWeight.w600,
+          fontSize: 11,
+        ),
       ),
     );
   }
 }
 
 class _PasswordRow extends StatelessWidget {
-  const _PasswordRow({
-    required this.index,
-    required this.password,
-    required this.onCopy,
-  });
+  const _PasswordRow({required this.password, required this.onCopy});
 
-  final int index;
   final String password;
   final VoidCallback onCopy;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFF3EEE3),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '$index',
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF304136),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
           Expanded(
             child: SelectableText(
               password,
+              maxLines: 2,
+              minLines: 1,
               style: const TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 15,
@@ -330,9 +300,16 @@ class _PasswordRow extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
+          IconButton.filledTonal(
             onPressed: onCopy,
             tooltip: '复制密码',
+            style: IconButton.styleFrom(
+              minimumSize: const Size(40, 40),
+              maximumSize: const Size(40, 40),
+              padding: EdgeInsets.zero,
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF304136),
+            ),
             icon: const Icon(Icons.copy_rounded),
           ),
         ],

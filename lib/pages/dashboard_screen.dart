@@ -34,53 +34,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDesktop = AppLayout.isDesktopWidth(width);
 
     return Scaffold(
-      drawer: isDesktop
-          ? null
-          : Drawer(
-              backgroundColor: const Color(0xFFD8E2F0),
-              child: SafeArea(
-                child: SideNavigation(
-                  currentSection: _currentSection,
-                  onChanged: _onSectionChanged,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppLayout.desktopWindowWidth,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(isDesktop ? 28 : 22),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFCF9),
+                  border: Border.all(color: const Color(0xFFE8E0D2)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: AppLayout.navigationWidth,
+                      color: const Color(0xFFD8E2F0),
+                      child: SideNavigation(
+                        currentSection: _currentSection,
+                        onChanged: _onSectionChanged,
+                      ),
+                    ),
+                    const VerticalDivider(
+                      width: 1,
+                      thickness: 1,
+                      color: Color(0xFFE8E0D2),
+                    ),
+                    Expanded(child: _buildCurrentPage(isDesktop: isDesktop)),
+                  ],
                 ),
               ),
             ),
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              surfaceTintColor: Colors.transparent,
-              title: Text(_titleForSection(_currentSection)),
-            ),
-      body: SafeArea(
-        child: isDesktop
-            ? Row(
-                children: [
-                  Container(
-                    width: 260,
-                    margin: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD8E2F0),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: SideNavigation(
-                      currentSection: _currentSection,
-                      onChanged: _onSectionChanged,
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
-                      child: _buildCurrentPage(isDesktop: isDesktop),
-                    ),
-                  ),
-                ],
-              )
-            : Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: _buildCurrentPage(isDesktop: isDesktop),
-              ),
+          ),
+        ),
       ),
     );
   }
@@ -89,7 +78,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _currentSection = section;
     });
-    Navigator.of(context).maybePop();
   }
 
   Widget _buildCurrentPage({required bool isDesktop}) {
@@ -115,21 +103,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       case AppSection.settings:
         return SettingsPage(repository: widget.repository);
-    }
-  }
-
-  String _titleForSection(AppSection section) {
-    switch (section) {
-      case AppSection.passwords:
-        return '\u5bc6\u7801';
-      case AppSection.memos:
-        return '备忘录';
-      case AppSection.generator:
-        return '\u5bc6\u7801\u751f\u6210';
-      case AppSection.sync:
-        return '\u540c\u6b65';
-      case AppSection.settings:
-        return '\u8bbe\u7f6e';
     }
   }
 }

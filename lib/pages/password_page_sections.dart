@@ -36,82 +36,72 @@ class _MetricBarItem extends StatelessWidget {
   }
 }
 
-class _WebsiteCard extends StatelessWidget {
-  const _WebsiteCard({
+class _WebsiteListItem extends StatelessWidget {
+  const _WebsiteListItem({
     required this.site,
-    required this.revealedAccounts,
-    required this.onAddAccount,
+    required this.onTap,
     required this.onEditSite,
-    required this.onEditAccount,
     required this.onDeleteSite,
-    required this.onDeleteAccount,
-    required this.onToggleReveal,
-    required this.onCopyPassword,
   });
 
   final WebsiteEntry site;
-  final Set<String> revealedAccounts;
-  final VoidCallback onAddAccount;
+  final VoidCallback onTap;
   final VoidCallback onEditSite;
-  final ValueChanged<AccountEntry> onEditAccount;
   final VoidCallback onDeleteSite;
-  final ValueChanged<AccountEntry> onDeleteAccount;
-  final ValueChanged<String> onToggleReveal;
-  final ValueChanged<String> onCopyPassword;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final displayTag = l10n.siteAccountsCount(site.accounts.length);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFE8E0D2)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x10000000),
-            blurRadius: 18,
-            offset: Offset(0, 12),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE8E0D2)),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: site.color.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(Icons.language_rounded, color: site.color),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       site.name,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 4),
-                    Text(displayTag),
+                    const SizedBox(height: 3),
+                    Text(
+                      site.domain.isEmpty ? '未设置域名' : site.domain,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              Text(l10n.siteAccountsCount(site.accounts.length)),
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'edit') {
                     onEditSite();
-                  }
-                  if (value == 'delete') {
+                  } else if (value == 'delete') {
                     onDeleteSite();
                   }
                 },
@@ -128,13 +118,102 @@ class _WebsiteCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
+        ),
+      ),
+    );
+  }
+}
+
+class _SiteDetailView extends StatelessWidget {
+  const _SiteDetailView({
+    required this.site,
+    required this.revealedAccounts,
+    required this.isSubmitting,
+    required this.onBack,
+    required this.onAddAccount,
+    required this.onEditSite,
+    required this.onEditAccount,
+    required this.onDeleteSite,
+    required this.onDeleteAccount,
+    required this.onToggleReveal,
+    required this.onCopyPassword,
+  });
+
+  final WebsiteEntry site;
+  final Set<String> revealedAccounts;
+  final bool isSubmitting;
+  final VoidCallback onBack;
+  final VoidCallback onAddAccount;
+  final VoidCallback onEditSite;
+  final ValueChanged<AccountEntry> onEditAccount;
+  final VoidCallback onDeleteSite;
+  final ValueChanged<AccountEntry> onDeleteAccount;
+  final ValueChanged<String> onToggleReveal;
+  final ValueChanged<String> onCopyPassword;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: onBack,
+                tooltip: '返回',
+                icon: const Icon(Icons.arrow_back_rounded),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      site.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Text(
+                      site.domain.isEmpty ? '未设置域名' : site.domain,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    onEditSite();
+                  } else if (value == 'delete') {
+                    onDeleteSite();
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Text('Edit Site'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Text(l10n.deleteSite),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 8),
+          child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                  horizontal: 10,
+                  vertical: 7,
                 ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3EEE3),
@@ -144,34 +223,34 @@ class _WebsiteCard extends StatelessWidget {
               ),
               const Spacer(),
               TextButton.icon(
-                onPressed: onAddAccount,
+                onPressed: isSubmitting ? null : onAddAccount,
                 icon: const Icon(Icons.add_circle_outline_rounded),
                 label: Text(l10n.addAccount),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: site.accounts.isEmpty
-                ? Center(child: Text(l10n.noAccountSaved))
-                : ListView.separated(
-                    itemCount: site.accounts.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final account = site.accounts[index];
-                      return _AccountTile(
-                        account: account,
-                        isRevealed: revealedAccounts.contains(account.id),
-                        onEdit: () => onEditAccount(account),
-                        onDelete: () => onDeleteAccount(account),
-                        onToggleReveal: () => onToggleReveal(account.id),
-                        onCopyPassword: () => onCopyPassword(account.password),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: site.accounts.isEmpty
+              ? Center(child: Text(l10n.noAccountSaved))
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+                  itemCount: site.accounts.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final account = site.accounts[index];
+                    return _AccountTile(
+                      account: account,
+                      isRevealed: revealedAccounts.contains(account.id),
+                      onEdit: () => onEditAccount(account),
+                      onDelete: () => onDeleteAccount(account),
+                      onToggleReveal: () => onToggleReveal(account.id),
+                      onCopyPassword: () => onCopyPassword(account.password),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 }

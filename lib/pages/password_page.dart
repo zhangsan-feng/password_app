@@ -36,6 +36,21 @@ class _PasswordPageState extends State<PasswordPage> {
   bool _isLoading = true;
   bool _isSubmitting = false;
   String _query = '';
+  String? _selectedSiteId;
+
+  WebsiteEntry? get _selectedSite {
+    final selectedId = _selectedSiteId;
+    if (selectedId == null) {
+      return null;
+    }
+
+    for (final site in _sites) {
+      if (site.id == selectedId) {
+        return site;
+      }
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -74,6 +89,26 @@ class _PasswordPageState extends State<PasswordPage> {
     setState(() {
       _sites = sites;
       _isLoading = false;
+      if (_selectedSiteId != null &&
+          !sites.any((site) => site.id == _selectedSiteId)) {
+        _selectedSiteId = null;
+      }
+    });
+  }
+
+  void _openSite(WebsiteEntry site) {
+    setState(() {
+      _selectedSiteId = site.id;
+    });
+
+    if (_query.isNotEmpty) {
+      _searchController.clear();
+    }
+  }
+
+  void _closeSite() {
+    setState(() {
+      _selectedSiteId = null;
     });
   }
 
@@ -251,90 +286,98 @@ class _PasswordPageState extends State<PasswordPage> {
       0,
       (total, site) => total + site.accounts.length,
     );
+    final selectedSite = _selectedSite;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF9),
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _MetricBarItem(
-                  label: l10n.metricSites,
-                  value: '${_sites.length}',
-                ),
-                _MetricBarItem(
-                  label: l10n.metricAccounts,
-                  value: '$accountCount',
-                ),
-                FilledButton.icon(
-                  onPressed: _isSubmitting ? null : _addSite,
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(l10n.addSite),
-                ),
-                OutlinedButton.icon(
-                  onPressed: _isSubmitting ? null : _openRecycleBin,
-                  icon: const Icon(Icons.restore_from_trash_rounded),
-                  label: const Text('回收站'),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search sites and accounts',
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: _query.isEmpty
-                    ? null
-                    : IconButton(
-                        onPressed: _searchController.clear,
-                        icon: const Icon(Icons.close_rounded),
-                      ),
+    return selectedSite == null
+        ? _buildSiteOverview(l10n, accountCount)
+        : _SiteDetailView(
+            site: selectedSite,
+            revealedAccounts: _revealedAccounts,
+            isSubmitting: _isSubmitting,
+            onBack: _closeSite,
+            onAddAccount: () => _addAccount(selectedSite),
+            onEditSite: () => _editSite(selectedSite),
+            onEditAccount: (account) => _editAccount(selectedSite, account),
+            onDeleteSite: () => _deleteSite(selectedSite),
+            onDeleteAccount: _deleteAccount,
+            onToggleReveal: _toggleReveal,
+            onCopyPassword: _copyPassword,
+          );
+  }
+
+  Widget _buildSiteOverview(AppLocalizations l10n, int accountCount) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _MetricBarItem(
+                label: l10n.metricSites,
+                value: '${_sites.length}',
               ),
+              _MetricBarItem(
+                label: l10n.metricAccounts,
+                value: '$accountCount',
+              ),
+              IconButton.filled(
+                onPressed: _isSubmitting ? null : _addSite,
+                tooltip: l10n.addSite,
+                icon: const Icon(Icons.add_rounded),
+              ),
+              IconButton.outlined(
+                onPressed: _isSubmitting ? null : _openRecycleBin,
+                tooltip: '回收站',
+                icon: const Icon(Icons.restore_from_trash_rounded),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search sites and accounts',
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _query.isEmpty
+                  ? null
+                  : IconButton(
+                      onPressed: _searchController.clear,
+                      icon: const Icon(Icons.close_rounded),
+                    ),
             ),
           ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _sites.isEmpty
-                ? _EmptyState(onAddSite: _addSite)
-                : GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: widget.isDesktop ? 2 : 1,
-                      crossAxisSpacing: 18,
-                      mainAxisSpacing: 18,
-                      mainAxisExtent: widget.isDesktop ? 356 : 388,
-                    ),
-                    itemCount: _sites.length,
-                    itemBuilder: (context, index) {
-                      final site = _sites[index];
-                      return _WebsiteCard(
-                        site: site,
-                        revealedAccounts: _revealedAccounts,
-                        onAddAccount: () => _addAccount(site),
-                        onEditSite: () => _editSite(site),
-                        onEditAccount: (account) => _editAccount(site, account),
-                        onDeleteSite: () => _deleteSite(site),
-                        onDeleteAccount: _deleteAccount,
-                        onToggleReveal: _toggleReveal,
-                        onCopyPassword: _copyPassword,
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+        ),
+        Expanded(child: _buildSiteList()),
+      ],
+    );
+  }
+
+  Widget _buildSiteList() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_sites.isEmpty) {
+      return _EmptyState(onAddSite: _addSite);
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+      itemCount: _sites.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final site = _sites[index];
+        return _WebsiteListItem(
+          site: site,
+          onTap: () => _openSite(site),
+          onEditSite: () => _editSite(site),
+          onDeleteSite: () => _deleteSite(site),
+        );
+      },
     );
   }
 }

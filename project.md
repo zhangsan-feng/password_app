@@ -4,7 +4,7 @@ lib/
     main.dart/
         main
             main()
-                负责启动 Flutter、初始化桌面窗口、创建仓库和加密服务、启动应用
+                负责启动 Flutter、初始化 460x720 固定桌面窗口、创建仓库和加密服务、启动应用
 
     app.dart/
         PasswordApp
@@ -41,7 +41,7 @@ lib/
         dashboard_screen.dart/
             DashboardScreen
                 build()
-                    负责主页面壳子、左侧导航/抽屉导航、桌面和移动布局切换、密码/密码生成/同步/设置页面切换
+                    负责构建导航与内容一体式外框、无顶部标题的桌面和移动端布局、页面布局切换与密码/备忘录/密码生成/同步/设置页面切换
 
         password_generator_page.dart/
             PasswordGeneratorPage
@@ -62,7 +62,17 @@ lib/
                 _showMessage()
                     负责统一显示页面提示消息
                 build()
-                    负责构建规则配置卡片和生成结果列表 UI
+                    负责构建紧凑的规则配置、生成操作和结果列表 UI，并保持移动端宽度下的分组布局
+
+            _GeneratorCard
+                build()
+                    负责提供统一的生成器分区卡片样式
+            _RuleChip
+                build()
+                    负责构建仅保留特殊字符的 96x56 字符类型选择项，选中显示绿色、未选中保持透明
+            _PasswordRow
+                build()
+                    负责构建单条密码和复制操作
 
         password_page.dart/
             PasswordPage
@@ -94,21 +104,33 @@ lib/
                     负责删除账号
                 _openRecycleBin()
                     负责加载回收站数据并打开恢复弹层
+                _openSite()
+                    负责从网站列表进入指定网站的账号详情
+                _closeSite()
+                    负责从账号详情返回网站列表
+                _buildSiteOverview()
+                    负责构建网站列表首页的统计区、图标式网站操作区和搜索区
+                _buildSiteList()
+                    负责构建网站列表或空状态
                 _toggleReveal()
                     负责切换密码明文显示状态
                 _copyPassword()
                     负责复制密码并弹出提示
                 build()
-                    负责构建密码首页整体布局、搜索区、统计区和网站卡片列表
+                    负责构建网站列表首页、搜索区、统计区和网站账号详情切换
 
         password_page_sections.dart/
             _MetricBarItem
                 build()
                     负责顶部统计条单项 UI
 
-            _WebsiteCard
+            _WebsiteListItem
                 build()
-                    负责网站卡片、站内账号列表、网站菜单操作 UI
+                    负责网站列表项、网站信息和网站菜单操作 UI
+
+            _SiteDetailView
+                build()
+                    负责网站详情页、账号列表和账号新增入口 UI
 
             _AccountTile
                 build()
@@ -227,7 +249,7 @@ lib/
     services/
         app_layout.dart/
             AppLayout
-                负责统一管理桌面/移动端宽度断点和窗口最小尺寸规则
+                负责统一管理桌面/移动端宽度断点、50px 固定图标导航宽度、460x720 桌面窗口和窗口尺寸规则
 
         password_generator_service.dart/
             PasswordGeneratorOptions
@@ -430,7 +452,7 @@ lib/
         side_navigation.dart/
             SideNavigation
                 build()
-                    负责左侧导航菜单和页面切换入口
+                    负责桌面和移动端 50px 固定窄栏中的图标导航、Tooltip 标签和页面切换入口
 
         site_form_dialog.dart/
             SiteFormDialog
@@ -458,7 +480,10 @@ lib/
         memo_dialog.dart/
             MemoDialog
                 build()
-                    负责创建新增/查看备忘录弹窗，展示完整内容并支持直接编辑保存
+                    负责创建新增/查看备忘录弹窗，展示完整内容并支持移动端长按选择、粘贴和直接编辑保存
+            _MemoDialogState
+                _buildContextMenu()
+                    负责提供包含粘贴操作的自适应文本选择菜单
 
 models/
     app_models.dart/

@@ -18,13 +18,20 @@ Future<void> main() async {
       }.contains(defaultTargetPlatform)) {
     await windowManager.ensureInitialized();
 
+    const windowSize = Size(
+      AppLayout.desktopWindowWidth,
+      AppLayout.desktopWindowHeight,
+    );
     const windowOptions = WindowOptions(
-      size: Size(1280, 720),
+      size: windowSize,
       center: true,
-      minimumSize: Size(AppLayout.desktopMinWidth, AppLayout.desktopMinHeight),
+      minimumSize: windowSize,
+      maximumSize: windowSize,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setResizable(false);
+      await windowManager.setMaximizable(false);
       await windowManager.show();
       await windowManager.focus();
     });

@@ -130,51 +130,45 @@ class _MemoPageState extends State<MemoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF9),
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _MemoMetricCard(label: '笔记数量', value: '${_memos.length}'),
-                FilledButton.icon(
-                  onPressed: _isSubmitting ? null : _addMemo,
-                  icon: const Icon(Icons.note_add_rounded),
-                  label: const Text('添加备忘录'),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _MemoMetricCard(label: '笔记数量', value: '${_memos.length}'),
+              FilledButton.icon(
+                onPressed: _isSubmitting ? null : _addMemo,
+                icon: const Icon(Icons.note_add_rounded),
+                label: const Text('添加备忘录'),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _memos.isEmpty
+              ? _MemoEmptyState(onAddMemo: _addMemo)
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  itemCount: _memos.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final memo = _memos[index];
+                    return _MemoCard(
+                      memo: memo,
+                      isDesktop: widget.isDesktop,
+                      onView: () => _viewMemo(memo),
+                      onDelete: () => _deleteMemo(memo),
+                    );
+                  },
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _memos.isEmpty
-                ? _MemoEmptyState(onAddMemo: _addMemo)
-                : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                    itemCount: _memos.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final memo = _memos[index];
-                      return _MemoCard(
-                        memo: memo,
-                        isDesktop: widget.isDesktop,
-                        onView: () => _viewMemo(memo),
-                        onDelete: () => _deleteMemo(memo),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

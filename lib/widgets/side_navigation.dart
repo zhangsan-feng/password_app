@@ -43,16 +43,18 @@ class SideNavigation extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           for (final item in items) ...[
-            _NavItem(
-              icon: item.icon,
-              label: item.label,
-              selected: currentSection == item.section,
-              onTap: () => onChanged(item.section),
+            Tooltip(
+              message: item.label,
+              child: _NavItem(
+                icon: item.icon,
+                selected: currentSection == item.section,
+                onTap: () => onChanged(item.section),
+              ),
             ),
             const SizedBox(height: 10),
           ],
@@ -65,13 +67,11 @@ class SideNavigation extends StatelessWidget {
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.icon,
-    required this.label,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
-  final String label;
   final bool selected;
   final VoidCallback onTap;
 
@@ -80,28 +80,21 @@ class _NavItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xFFB8C9E0) : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: const Color(0xFF2E4056)),
-              const SizedBox(width: 14),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF2E4056),
-                  fontWeight: FontWeight.w700,
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFFB8C9E0) : Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
               ),
-            ],
-          ),
+              child: Icon(icon, size: 20, color: const Color(0xFF2E4056)),
+            ),
+          ],
         ),
       ),
     );
