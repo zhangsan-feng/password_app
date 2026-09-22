@@ -109,7 +109,7 @@ lib/
                 _closeSite()
                     负责从账号详情返回网站列表
                 _buildSiteOverview()
-                    负责构建网站列表首页的统计区、图标式网站操作区和搜索区
+                    负责构建网站列表首页的统计区、图标式网站操作区和仅保留搜索图标的搜索区
                 _buildSiteList()
                     负责构建网站列表或空状态
                 _toggleReveal()
@@ -126,7 +126,7 @@ lib/
 
             _WebsiteListItem
                 build()
-                    负责网站列表项、网站信息和网站菜单操作 UI
+                    负责不带左侧网站图标的网站列表项、网站信息和网站菜单操作 UI
 
             _SiteDetailView
                 build()

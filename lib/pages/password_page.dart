@@ -341,7 +341,6 @@ class _PasswordPageState extends State<PasswordPage> {
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Search sites and accounts',
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: _query.isEmpty
                   ? null

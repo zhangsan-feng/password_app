@@ -323,4 +323,78 @@ void main() {
     expect(find.text('新增网站'), findsNothing);
     expect(find.text('回收站'), findsNothing);
   });
+
+  testWidgets('search field has no placeholder text', (
+    WidgetTester tester,
+  ) async {
+    final repository = _FakeSiteRepository(const []);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('zh'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: SizedBox(
+          width: 460,
+          height: 720,
+          child: PasswordPage(
+            repository: repository,
+            syncService: LanSyncService(repository),
+            isDesktop: false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final searchField = tester.widget<TextField>(find.byType(TextField));
+
+    expect(searchField.decoration?.hintText, isNull);
+    expect(find.text('Search sites and accounts'), findsNothing);
+  });
+
+  testWidgets('website list omits the leading website icon', (
+    WidgetTester tester,
+  ) async {
+    final repository = _FakeSiteRepository([
+      const WebsiteEntry(
+        id: 'site-1',
+        name: 'GitHub',
+        domain: 'github.com',
+        colorValue: 0xFF6C8A7A,
+        accounts: [],
+      ),
+    ]);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('zh'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: SizedBox(
+          width: 460,
+          height: 720,
+          child: PasswordPage(
+            repository: repository,
+            syncService: LanSyncService(repository),
+            isDesktop: false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('GitHub'), findsOneWidget);
+    expect(find.byIcon(Icons.language_rounded), findsNothing);
+  });
 }
