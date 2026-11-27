@@ -4,7 +4,7 @@ class AppLayout {
   static const double desktopWindowHeight = 720;
   static const double desktopMinWidth = desktopWindowWidth;
   static const double desktopMinHeight = desktopWindowHeight;
-  static const double navigationWidth = 50;
+  static const double navigationHeight = 50;
 
   static bool isDesktopWidth(double width) => width >= desktopBreakpoint;
 }

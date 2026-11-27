@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/app_models.dart';
 
-class SideNavigation extends StatelessWidget {
-  const SideNavigation({
+class BottomNavigation extends StatelessWidget {
+  const BottomNavigation({
     super.key,
     required this.currentSection,
     required this.onChanged,
@@ -42,22 +42,22 @@ class SideNavigation extends StatelessWidget {
       ),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Material(
+      color: const Color(0xFFD8E2F0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final item in items) ...[
-            Tooltip(
-              message: item.label,
-              child: _NavItem(
-                icon: item.icon,
-                selected: currentSection == item.section,
-                onTap: () => onChanged(item.section),
+          for (final item in items)
+            Expanded(
+              child: Tooltip(
+                message: item.label,
+                child: _NavItem(
+                  icon: item.icon,
+                  selected: currentSection == item.section,
+                  onTap: () => onChanged(item.section),
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-          ],
         ],
       ),
     );
@@ -77,24 +77,21 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
+    return Semantics(
+      selected: selected,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: selected ? const Color(0xFFB8C9E0) : Colors.transparent,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, size: 20, color: const Color(0xFF2E4056)),
+        child: Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: selected ? const Color(0xFFB8C9E0) : Colors.transparent,
+              borderRadius: BorderRadius.circular(14),
             ),
-          ],
+            child: Icon(icon, size: 20, color: const Color(0xFF2E4056)),
+          ),
         ),
       ),
     );

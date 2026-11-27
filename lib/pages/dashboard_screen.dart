@@ -4,7 +4,7 @@ import '../models/app_models.dart';
 import '../repositories/password_repository.dart';
 import '../services/app_layout.dart';
 import '../services/lan_sync_service.dart';
-import '../widgets/side_navigation.dart';
+import '../widgets/bottom_navigation.dart';
 import 'memo_page.dart';
 import 'password_page.dart';
 import 'password_generator_page.dart';
@@ -47,23 +47,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: const Color(0xFFFFFCF9),
                   border: Border.all(color: const Color(0xFFE8E0D2)),
                 ),
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      width: AppLayout.navigationWidth,
-                      color: const Color(0xFFD8E2F0),
-                      child: SideNavigation(
+                    Expanded(child: _buildCurrentPage(isDesktop: isDesktop)),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFE8E0D2),
+                    ),
+                    SizedBox(
+                      height: AppLayout.navigationHeight,
+                      child: BottomNavigation(
                         currentSection: _currentSection,
                         onChanged: _onSectionChanged,
                       ),
                     ),
-                    const VerticalDivider(
-                      width: 1,
-                      thickness: 1,
-                      color: Color(0xFFE8E0D2),
-                    ),
-                    Expanded(child: _buildCurrentPage(isDesktop: isDesktop)),
                   ],
                 ),
               ),

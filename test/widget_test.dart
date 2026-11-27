@@ -11,7 +11,7 @@ import 'package:password_app/pages/settings_page.dart';
 import 'package:password_app/repositories/password_repository.dart';
 import 'package:password_app/services/lan_sync_service.dart';
 import 'package:password_app/widgets/memo_dialog.dart';
-import 'package:password_app/widgets/side_navigation.dart';
+import 'package:password_app/widgets/bottom_navigation.dart';
 
 class _FakePasswordRepository extends PasswordRepository {
   Future<void> rotateSecretKey({
@@ -85,7 +85,8 @@ void main() {
         home: Scaffold(
           body: SizedBox(
             width: 260,
-            child: SideNavigation(
+            height: 50,
+            child: BottomNavigation(
               currentSection: AppSection.passwords,
               onChanged: (_) {},
             ),
@@ -106,8 +107,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: SizedBox(
-          width: 50,
-          child: SideNavigation(
+          width: 260,
+          height: 50,
+          child: BottomNavigation(
             currentSection: AppSection.passwords,
             onChanged: (_) {},
           ),
@@ -190,7 +192,7 @@ void main() {
     },
   );
 
-  testWidgets('dashboard does not show a duplicate top page title', (
+  testWidgets('dashboard places the main navigation below the page', (
     WidgetTester tester,
   ) async {
     final repository = _FakeSiteRepository(const []);
@@ -216,6 +218,18 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+
+    final passwords = tester.getCenter(find.byTooltip('密码'));
+    final generator = tester.getCenter(find.byTooltip('密码生成'));
+    final settings = tester.getCenter(find.byTooltip('设置'));
+    expect(passwords.dy, generator.dy);
+    expect(generator.dy, settings.dy);
+    expect(passwords.dx, lessThan(generator.dx));
+    expect(generator.dx, lessThan(settings.dx));
+    expect(
+      passwords.dy,
+      greaterThan(tester.getBottomLeft(find.byType(PasswordPage)).dy),
+    );
 
     await tester.tap(find.byTooltip('密码生成'));
     await tester.pumpAndSettle();

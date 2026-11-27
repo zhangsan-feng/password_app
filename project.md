@@ -41,7 +41,7 @@ lib/
         dashboard_screen.dart/
             DashboardScreen
                 build()
-                    负责构建导航与内容一体式外框、无顶部标题的桌面和移动端布局、页面布局切换与密码/备忘录/密码生成/同步/设置页面切换
+                    负责构建桌面和移动端的一体式外框，在上方显示当前页面，在底部固定显示主导航，并处理密码、备忘录、密码生成、同步和设置页面的切换
 
         password_generator_page.dart/
             PasswordGeneratorPage
@@ -249,7 +249,7 @@ lib/
     services/
         app_layout.dart/
             AppLayout
-                负责统一管理桌面/移动端宽度断点、50px 固定图标导航宽度、460x720 桌面窗口和窗口尺寸规则
+                负责统一管理桌面和移动端的宽度断点、底部导航的固定 50 逻辑像素高度，以及 460×720 桌面窗口和窗口尺寸规则
 
         password_generator_service.dart/
             PasswordGeneratorOptions
@@ -449,10 +449,10 @@ lib/
                     负责生成 discovery 请求 id
 
     widgets/
-        side_navigation.dart/
-            SideNavigation
+        bottom_navigation.dart/
+            BottomNavigation
                 build()
-                    负责桌面和移动端 50px 固定窄栏中的图标导航、Tooltip 标签和页面切换入口
+                    负责在桌面和移动端的底部导航栏等宽排列五个图标，显示当前页面的选中高亮和图标提示，并提供页面切换入口
 
         site_form_dialog.dart/
             SiteFormDialog
