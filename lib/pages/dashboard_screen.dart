@@ -33,37 +33,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = AppLayout.isDesktopWidth(width);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppLayout.desktopWindowWidth,
+    final dashboard = Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SizedBox.expand(child: _buildCurrentPage(isDesktop: isDesktop)),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Divider(height: 1, thickness: 1, color: Color(0xFFE8E0D2)),
+          SizedBox(
+            height: AppLayout.navigationHeight,
+            child: BottomNavigation(
+              currentSection: _currentSection,
+              onChanged: _onSectionChanged,
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(isDesktop ? 28 : 22),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFCF9),
-                  border: Border.all(color: const Color(0xFFE8E0D2)),
+          ),
+        ],
+      ),
+    );
+
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: MediaQuery.removeViewInsets(
+          context: context,
+          removeBottom: true,
+          child: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppLayout.desktopWindowWidth,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: _buildCurrentPage(isDesktop: isDesktop)),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFE8E0D2),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(isDesktop ? 28 : 22),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFCF9),
+                      border: Border.all(color: const Color(0xFFE8E0D2)),
                     ),
-                    SizedBox(
-                      height: AppLayout.navigationHeight,
-                      child: BottomNavigation(
-                        currentSection: _currentSection,
-                        onChanged: _onSectionChanged,
-                      ),
-                    ),
-                  ],
+                    child: dashboard,
+                  ),
                 ),
               ),
             ),

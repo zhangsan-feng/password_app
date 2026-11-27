@@ -41,7 +41,7 @@ lib/
         dashboard_screen.dart/
             DashboardScreen
                 build()
-                    负责构建桌面和移动端的一体式外框，在上方显示当前页面，在底部固定显示主导航，并处理密码、备忘录、密码生成、同步和设置页面的切换
+                    负责构建桌面和移动端的一体式外框，通过 Scaffold 的底部导航槽显示主导航，让浮动提示条显示在导航栏上方，并处理密码、备忘录、密码生成、同步和设置页面的切换
 
         password_generator_page.dart/
             PasswordGeneratorPage
